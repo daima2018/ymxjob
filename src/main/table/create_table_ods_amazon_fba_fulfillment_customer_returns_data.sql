@@ -1,8 +1,7 @@
 CREATE TABLE if not exists `ods_amazon_fba_fulfillment_customer_returns_data` (
      affcrd_id             int     comment ''      
     ,seller_id             string  comment 'seller_id'         
-    ,user_account          string  comment '店铺账号'            
-    ,company_code          string  comment '公司代码'            
+    ,user_account          string  comment '店铺账号'                 
     ,sku                   string  comment '卖家sku'   
     ,asin                  string  comment 'asin'    
     ,fnsku                 string  comment 'amazon fba仓库sku'     
@@ -21,4 +20,5 @@ CREATE TABLE if not exists `ods_amazon_fba_fulfillment_customer_returns_data` (
     ,updated_time          string  comment '更新时间'            
     ,ods_create_time       string           comment '导入数据时间'
 ) comment '亚马逊客户退货数据'
+partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;

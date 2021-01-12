@@ -1,6 +1,5 @@
 CREATE TABLE if not exists  ods_amazon_get_merchant_listings_data  (
      id                            int             comment ''                              
-    ,company_code                  string          comment ''                                 
     ,user_account                  string          comment ''                                 
     ,listing_id                    string          comment ''                               
     ,seller_sku                    string          comment ''                               
@@ -69,4 +68,5 @@ CREATE TABLE if not exists  ods_amazon_get_merchant_listings_data  (
     ,parent_md5_key                string          comment '父asin的MD5加密串'                        
     ,ods_create_time               string          comment '导入数据时间'
 ) comment 'listing报表原始表'
+partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;                                                               

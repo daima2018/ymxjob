@@ -56,8 +56,7 @@ select
      aoo_id                          -- '序列ID'                               
     ,amazon_order_id                 -- '亚马逊定义的订单编码，格式3-7-7'                             
     ,seller_order_id                 -- '卖家所定义的订单编码'                             
-    ,site                            -- '站点信息'                  
-    ,company_code                    -- '公司代码'                          
+    ,site                            -- '站点信息'                        
     ,user_account                    -- 'amazon账户'                          
     ,purchase_date_site              -- '订单创建时间 site 站点时间'                                
     ,purchase_date_local             -- '订单创建时间 北京时间'                                 
@@ -124,8 +123,7 @@ if [ $DISK_SPACE -gt 0 ];then
             aoo_id                            
             ,amazon_order_id                  
             ,seller_order_id                  
-            ,site                             
-            ,company_code                     
+            ,site                              
             ,user_account                     
             ,purchase_date_site               
             ,purchase_date_local              

@@ -56,7 +56,6 @@ select
      affcrd_id             -- ''      
     ,seller_id             -- 'seller_id'         
     ,user_account          -- '店铺账号'            
-    ,company_code          -- '公司代码'            
     ,sku                   -- '卖家sku'   
     ,asin                  -- 'asin'    
     ,fnsku                 -- 'amazon fba仓库sku'     
@@ -91,8 +90,7 @@ if [ $DISK_SPACE -gt 0 ];then
         select 
             affcrd_id              
             ,seller_id                      
-            ,user_account                      
-            ,company_code                      
+            ,user_account                     
             ,sku                      
             ,asin                      
             ,fnsku                      

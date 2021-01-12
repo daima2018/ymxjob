@@ -54,7 +54,6 @@ echo "--db_password:${db_password}"
 --query "
 select
      pu_id                    -- ''
-    ,company_code             -- 'Amazon运营系统的'
     ,user_account             -- '平台账号'
     ,short_name               -- '简称'
     ,site                     -- '站点'
@@ -110,7 +109,6 @@ if [ $DISK_SPACE -gt 0 ];then
     sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
         select 
              pu_id                   
-            ,company_code            
             ,user_account            
             ,short_name              
             ,site                    

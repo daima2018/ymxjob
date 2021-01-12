@@ -1,6 +1,5 @@
 CREATE TABLE if not exists `ods_product_ad_products_report_daily` (
-     paprdy_id                 int             comment ''          
-    ,company_code              string          comment '公司代码'                
+     paprdy_id                 int             comment ''                     
     ,user_account              string          comment '平台账号'                
     ,profile_id                bigint          comment 'profileId'              
     ,campaign_id               bigint          comment '活动campaignId'               
@@ -49,4 +48,5 @@ CREATE TABLE if not exists `ods_product_ad_products_report_daily` (
     ,order_total               int             comment '时间段内订单数量'            
     ,ods_create_time           string           comment '导入数据时间'
 ) comment 'Amazon广告产品报告日表'
+partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;

@@ -53,8 +53,7 @@ echo "--db_password:${db_password}"
 --lines-terminated-by '\n'   \
 --query "
 select
-     id                            -- ''                              
-    ,company_code                  -- ''                                 
+     id                            -- ''                                  
     ,user_account                  -- ''                                 
     ,listing_id                    -- ''                               
     ,seller_sku                    -- ''                               
@@ -137,8 +136,7 @@ DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
     sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
         select 
-            id                                                     
-            ,company_code                                              
+            id                                                          
             ,user_account                                              
             ,listing_id                                              
             ,seller_sku                                              

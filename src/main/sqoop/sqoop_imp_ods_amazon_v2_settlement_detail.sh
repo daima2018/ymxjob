@@ -53,8 +53,7 @@ echo "--db_password:${db_password}"
 --lines-terminated-by '\n'   \
 --query "
 select
-    ras_id                         -- '自增长ID' 
-    ,company_code                  -- '公司代码'         
+    ras_id                         -- '自增长ID'      
     ,seller_id                     -- '卖家销售id'      
     ,user_account                  -- '店铺账号'         
     ,site                          -- '站点' 
@@ -100,8 +99,7 @@ DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
     sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
         select 
-            ras_id                          
-            ,company_code                           
+            ras_id                                   
             ,seller_id                           
             ,user_account                           
             ,site                           

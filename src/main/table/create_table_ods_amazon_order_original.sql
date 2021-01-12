@@ -2,8 +2,7 @@ CREATE TABLE if not exists `ods_amazon_order_original` (
      aoo_id                          int            comment '序列ID'                               
     ,amazon_order_id                 string         comment '亚马逊定义的订单编码，格式3-7-7'                             
     ,seller_order_id                 string         comment '卖家所定义的订单编码'                             
-    ,site                            string         comment '站点信息'                  
-    ,company_code                    string         comment '公司代码'                          
+    ,site                            string         comment '站点信息'                          
     ,user_account                    string         comment 'amazon账户'                          
     ,purchase_date_site              string         comment '订单创建时间 site 站点时间'                                
     ,purchase_date_local             string         comment '订单创建时间 北京时间'                                 
@@ -53,6 +52,7 @@ CREATE TABLE if not exists `ods_amazon_order_original` (
     ,updated_time                    string         comment '系统最后更新时间'                          
     ,ods_create_time                 string         comment '导入数据时间'
 ) comment 'amazon原始订单表'
+partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;
 
 

@@ -54,8 +54,7 @@ echo "--db_password:${db_password}"
 --query "
 select
      aod_id                            -- '自增长序列'                          
-    ,aoo_id                            -- 'amazon订单原始表主键ID'                          
-    ,company_code                      -- '客户代码'                                    
+    ,aoo_id                            -- 'amazon订单原始表主键ID'                         
     ,user_account                      -- '店铺账号'                                    
     ,amazon_order_id                   -- '亚马逊所定义的订单编码，格式3-7-7'                                       
     ,asin                              -- '商品的亚马逊商品编码'                            
@@ -120,8 +119,7 @@ if [ $DISK_SPACE -gt 0 ];then
     sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
         select 
             aod_id                             
-            ,aoo_id                            
-            ,company_code                      
+            ,aoo_id                             
             ,user_account                      
             ,amazon_order_id                                                          
             ,asin                              

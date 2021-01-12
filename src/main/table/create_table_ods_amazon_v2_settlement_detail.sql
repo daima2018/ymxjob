@@ -1,6 +1,5 @@
 CREATE TABLE if not exists `ods_amazon_v2_settlement_detail` (
-     ras_id                        int           comment '自增长ID' 
-    ,company_code                  string        comment '公司代码'         
+     ras_id                        int           comment '自增长ID'       
     ,seller_id                     string        comment '卖家销售id'      
     ,user_account                  string        comment '店铺账号'         
     ,site                          string        comment '站点' 
@@ -32,4 +31,5 @@ CREATE TABLE if not exists `ods_amazon_v2_settlement_detail` (
     ,updated_time                  string        comment ''         
     ,ods_create_time           string           comment '导入数据时间'
 ) comment '亚马逊结算报告V2版本详情'
+partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;
