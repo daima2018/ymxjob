@@ -2,6 +2,7 @@ CREATE TABLE if not exists dwm_child_listing_sum_d (
     `user_account` string  COMMENT '店铺账号',
     `site` string  COMMENT '站点',
     `seller_sku` string comment '',
+    `parent_asin` string comment '父asin和独立asin',
     `asin` string comment '',
     `qty` int  COMMENT '销售数量',
     `summary_date` string  COMMENT '统计日期',
