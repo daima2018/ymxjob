@@ -165,7 +165,8 @@ if [ $DISK_SPACE -gt 0 ];then
             ,is_loaded                                          
             ,purchase_order_number            
             ,is_business_order                
-            ,is_prime                                                            
+            ,is_prime          
+            ,earliest_delivery_date                                                  
             ,latest_delivery_date                                   
             ,is_sold_by_ab                    
             ,created_time                     

@@ -1,6 +1,5 @@
 CREATE TABLE if not exists ods_platform_user (
      pu_id                    int  comment ''
-    ,company_code             string COMMENT 'Amazon运营系统的'
     ,user_account             string COMMENT '平台账号'
     ,short_name               string COMMENT '简称'
     ,site                     string COMMENT '站点'
@@ -41,4 +40,5 @@ CREATE TABLE if not exists ods_platform_user (
     ,pu_type                int     comment ''  
     ,ods_create_time   string comment '导入数据时间'
 ) comment '用户表'
+partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;

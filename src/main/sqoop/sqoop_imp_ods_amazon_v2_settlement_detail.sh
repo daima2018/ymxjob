@@ -20,8 +20,8 @@ company_code=`getparam company_code`
 
 ods_dbname=ymx
 tmp_dbname=ymx_tmp
-ods_tbname= ods_amazon_v2_settlement_detail
-tmp_tbname= ods_amazon_v2_settlement_detail
+ods_tbname=ods_amazon_v2_settlement_detail
+tmp_tbname=ods_amazon_v2_settlement_detail
 
 target_dir=${HDFS_BASE_DIR}/${tmp_dbname}.db/${tmp_tbname}/company_code=${company_code}
 
