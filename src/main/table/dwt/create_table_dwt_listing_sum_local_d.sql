@@ -1,11 +1,9 @@
-CREATE TABLE if not exists dwm_child_listing_sum_d (
+CREATE TABLE if not exists dwt_listing_sum_local_d (
     `user_account` string  COMMENT '店铺账号',
     `site` string  COMMENT '站点',
     `seller_sku` string comment '',
-    `parent_asin` string comment '父asin和独立asin',
     `asin` string comment '',
     `qty` int  COMMENT '销售数量',
-    `summary_date` string  COMMENT '统计日期',
     `sale_amount` decimal(14,4)  COMMENT '销售额(本位币)',
     `sale_amount_usd` decimal(14,4)  COMMENT '销售额美元',
     `sale_amount_eur` decimal(14,4)  COMMENT '销售额欧元',
@@ -46,6 +44,6 @@ CREATE TABLE if not exists dwm_child_listing_sum_d (
     `buy_box_percentage` decimal(10,2)  COMMENT 'buy_box_percentage',
     `session_percentage` decimal(10,2)  COMMENT '买家访问次数比率',
     `page_views_percentage` decimal(10,2)  COMMENT '浏览次数比率'
-) comment '子asin和独立asi统计表(本地时间)'
-partitioned by (company_code string comment '公司代码',day string comment '统计日期')
+) comment 'listing统计表(本地时间)'
+partitioned by (company_code string comment '公司代码',stat_date string comment '统计日期')
 row format delimited fields terminated by '\t' stored as orc;

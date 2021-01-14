@@ -13,5 +13,5 @@ CREATE TABLE if not exists `dwd_listing_currency_rate_d` (
     ,gbp_rate       string comment '英镑汇率'     
     ,jpy_rate       string comment '日元汇率'      
 ) comment 'listing汇率表'
-partitioned by (company_code string comment '公司代码',c_date string comment '汇率日期')
+partitioned by (company_code string comment '公司代码',currency_date string comment '汇率日期')
 row format delimited fields terminated by '\t' stored as orc;
