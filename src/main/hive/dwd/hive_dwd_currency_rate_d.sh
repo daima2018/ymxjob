@@ -17,7 +17,7 @@ end_date=`getparam end_date`
 /opt/module/hive-3.1.2/bin/hive -e "
 insert overwrite table ymx.dwd_currency_rate_d
 select
-     a.crr_date            as date     
+     a.crr_date            as currency_date     
     ,a.crr_local           as currency_local  --本位币
     ,b.crrd_currency_code  as currency_code   --币种
     ,b.crrd_currency_rate  as currency_rate   --汇率
