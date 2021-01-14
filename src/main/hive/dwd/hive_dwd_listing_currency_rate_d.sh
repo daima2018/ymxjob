@@ -10,10 +10,16 @@ getparam(){
     arg=$1
     echo $opts |xargs -n1|cut -b 2- |awk -F '=' '{if($1=="'"$arg"'") print $2}'
 }
-#解析脚本参数
+
+#解析脚本参数,传入格式为yyyy-MM-dd
 start_date=`getparam start_date`
 end_date=`getparam end_date`
 company_code=`getparam company_code`
+
+#默认情况只跑一天的
+if [ "$end_date" = "" ]  
+then end_date=`date -d "${end_date} 1 days" "+%Y-%m-%d"`
+fi
 
 /opt/module/hive-3.1.2/bin/hive -e "
 set hive.exec.dynamic.partition=true;  -- 开启动态分区，默认是false
@@ -42,7 +48,7 @@ left join (
     select * from ymx.dwd_currency_rate_d
     where currency_date>='${start_date}' and currency_date<='${end_date}'
 ) ttt2                --汇率有多条会发散,聚合取一条
-on ttt1.currency_site = ttt2.currency_local      --会导致数据倾斜,RMB比较多
+on ttt1.currency_site = ttt2.currency_local      --会导致数据倾斜,RMB币种的站点比较多
 where ttt1.company_code='${company_code}'
 group by  ttt1.site
        ,ttt1.user_account
