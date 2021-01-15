@@ -42,7 +42,7 @@ echo "--db_password:${db_password}"
 --password ${db_password} \
 --hive-overwrite \
 --target-dir $target_dir \
---num-mappers 1        \
+--split-by paprdy_id -m 4  \
 --delete-target-dir \
 --hive-database $tmp_dbname \
 --hive-drop-import-delims \
