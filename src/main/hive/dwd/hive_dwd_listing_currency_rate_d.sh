@@ -46,7 +46,7 @@ select
 from ymx.dwd_listing_d ttt1 
 left join (
     select * from ymx.dwd_currency_rate_d
-    where currency_date>='${start_date}' and currency_date<='${end_date}'
+    where currency_date>='${start_date}' and currency_date<'${end_date}'
 ) ttt2                --汇率有多条会发散,聚合取一条
 on ttt1.currency_site = ttt2.currency_local      --会导致数据倾斜,RMB币种的站点比较多
 where ttt1.company_code='${company_code}'
