@@ -18,8 +18,24 @@ company_code=`getparam company_code`
 
 #默认情况只跑一天的
 if [ "$end_date" = "" ]  
-then end_date=`date -d "${end_date} 1 days" "+%Y-%m-%d"`
+then end_date=`date -d "${start_date} 1 days" "+%Y-%m-%d"`
 fi
+
+start_flag=$start_date
+string_array=''
+while [[ $start_flag < $end_date ]]
+do
+    echo $start_flag
+    string_array=$string_array","$start_flag
+    start_flag=`date -d "${start_flag} 1 days" "+%Y-%m-%d"`
+done
+echo $start_flag
+
+if [[ $string_array != "" ]]
+then string_array=${string_array:1} #去掉第一个, 
+fi
+echo $string_array
+
 
 /opt/module/hive-3.1.2/bin/hive -e "
 set hive.exec.dynamic.partition=true;  -- 开启动态分区，默认是false
@@ -42,14 +58,17 @@ select
     ,min(case when ttt2.currency_code='EUR' then ttt2.currency_rate end) as eur_rate  -- '欧元汇率'     
     ,min(case when ttt2.currency_code='GBP' then ttt2.currency_rate end) as gbp_rate  -- '英镑汇率'     
     ,min(case when ttt2.currency_code='JPY' then ttt2.currency_rate end) as jpy_rate  -- '日元汇率'     
-    ,ttt2.currency_date        --汇率日期
-from ymx.dwd_listing_d ttt1 
+    ,ttt1.currency_date        --汇率日期
+from (select a.*,b.currency_date from ymx.dwd_listing_d a
+     lateral view explode(split('${string_array}',',')) b as currency_date
+     where a.company_code='${company_code}'
+)ttt1 
 left join (
     select * from ymx.dwd_currency_rate_d
     where currency_date>='${start_date}' and currency_date<'${end_date}'
 ) ttt2                --汇率有多条会发散,聚合取一条
-on ttt1.currency_site = ttt2.currency_local      --会导致数据倾斜,RMB币种的站点比较多
-where ttt1.company_code='${company_code}'
+on ttt1.currency_date=ttt2.currency_date
+    and ttt1.currency_site = ttt2.currency_local     
 group by  ttt1.site
        ,ttt1.user_account
        ,ttt1.parent_asin
@@ -58,7 +77,7 @@ group by  ttt1.site
        ,ttt1.asin_type
        ,ttt1.currency_site
        ,ttt1.currency_local
-       ,ttt2.currency_date
+       ,ttt1.currency_date
 "
 
 #如果执行失败就退出
