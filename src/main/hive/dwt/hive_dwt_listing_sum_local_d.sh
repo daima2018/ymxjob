@@ -17,7 +17,11 @@ company_code=`getparam company_code`
 
 
 /opt/module/hive-3.1.2/bin/hive -e "
-insert overwrite table ymx.dwt_listing_sum_local_d partition(company_code='${company_code}',stat_date='${start_date}')
+set hive.exec.dynamic.partition=true;  -- 开启动态分区，默认是false
+set hive.exec.dynamic.partition.mode=nonstrict; -- 开启允许所有分区都是动态的，否则必须要有静态分区才能使用。
+set hive.exec.parallel=true;
+
+insert overwrite table ymx.dwt_listing_sum_local_d partition(company_code='${company_code}',stat_date)
 select
       c.user_account                   -- '店铺账号'
      ,c.site                           --  '站点'
@@ -64,18 +68,22 @@ select
      ,nvl(max(h.buy_box_percentage)   ,0) as buy_box_percentage       --  buy_box_percentage
      ,nvl(max(h.session_percentage)   ,0) as session_percentage       --买家访问次数比率
      ,nvl(max(h.page_views_percentage),0) as page_views_percentage    --   浏览次数比率
+     ,c.currency_date as stat_date
 from (select * from ymx.dwd_listing_currency_rate_d 
-     where company_code='${company_code}' and currency_date='${start_date}'
+     where company_code='${company_code}' and currency_date>='${start_date}' and currency_date<'${end_date}'
+        and asin_type=1
 ) c
 left join (select * from ymx.dwm_child_listing_sum_local_d 
-            where company_code='${company_code}' and stat_date='${start_date}'
+            where company_code='${company_code}' and stat_date>='${start_date}' and stat_date<'${end_date}'
 ) d
-on  c.user_account = d.user_account
+on  c.currency_date=d.stat_date
+    and c.user_account = d.user_account
     and c.site = d.site
     and c.asin = d.asin
     and c.seller_sku = d.seller_sku
 left join (SELECT
-                 user_account
+                 generate_date as stat_date
+                 ,user_account
                 ,parent_asin
                 ,nvl(max(sessions),0) as sessions
                 ,nvl(max(page_views),0) as page_views
@@ -83,14 +91,16 @@ left join (SELECT
                 ,nvl(max(session_percentage),0) as session_percentage
                 ,nvl(max(page_views_percentage),0) as page_views_percentage
            from ymx.ods_amazon_business_report_by_parent
-           WHERE generate_date='${start_date}'
+           WHERE generate_date>='${start_date}' and generate_date<'${end_date}'
            group by user_account
                   ,parent_asin
+                  ,generate_date
 ) h
-on  c.user_account = h.user_account
+on  c.currency_date=h.stat_date
+    and c.user_account = h.user_account
     and c.parent_asin = h.parent_asin
-where c.asin_type=1
-group by c.user_account                    
+group by c.currency_date
+        ,c.user_account                    
         ,c.site                               
         ,c.parent_asin            
 
@@ -142,8 +152,10 @@ select
     ,buy_box_percentage
     ,session_percentage
     ,page_views_percentage
+    ,stat_date
 from ymx.dwm_child_listing_sum_local_d 
-where company_code='${company_code}' and stat_date='${start_date}'
+where company_code='${company_code}' 
+    and stat_date>='${start_date}' and stat_date<'${end_date}'
 "
 
 #如果执行失败就退出

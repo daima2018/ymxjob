@@ -16,6 +16,8 @@ end_date=`getparam end_date`
 company_code=`getparam company_code`
 
 /opt/module/hive-3.1.2/bin/hive -e "
+set hive.exec.parallel=true;
+
 insert overwrite table ymx.dwd_listing_d partition(company_code='${company_code}')
 select
     tt1.site                  -- 站点                               
