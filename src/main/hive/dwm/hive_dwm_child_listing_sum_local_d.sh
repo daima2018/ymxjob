@@ -25,7 +25,11 @@ end_all=$end_date+" 00:00:00"
 
 
 /opt/module/hive-3.1.2/bin/hive -e "
-insert overwrite table ymx.dwm_child_listing_sum_local_d partition(company_code='${company_code}',stat_date='${start_date}')
+set hive.exec.dynamic.partition=true;  -- 开启动态分区，默认是false
+set hive.exec.dynamic.partition.mode=nonstrict; -- 开启允许所有分区都是动态的，否则必须要有静态分区才能使用。
+set mapred.reduce.tasks=4;
+
+insert overwrite table ymx.dwm_child_listing_sum_local_d partition(company_code='${company_code}',stat_date)
 select                                                                       
      c.user_account                                           -- '店铺账号'                
     ,c.site                                                   --  '站点'                      
@@ -81,11 +85,13 @@ select
     ,nvl(h.buy_box_percentage   ,0) as buy_box_percentage       --  buy_box_percentage           
     ,nvl(h.session_percentage   ,0) as session_percentage       --买家访问次数比率             
     ,nvl(h.page_views_percentage,0) as page_views_percentage    --   浏览次数比率        
+    ,c.currency_date  as stat_date
 from (select * from ymx.dwd_listing_currency_rate_d 
-     where company_code='${company_code}' and currency_date='${start_date}'
+     where company_code='${company_code}' and currency_date>='${start_date}' and currency_date<'${end_date}'
 ) c 
 left join (SELECT
-                  aod.user_account  --'店铺账号',
+                  date_format(aoo.purchase_date_local,'%Y-%m-%d') as stat_date
+                 ,aod.user_account  --'店铺账号',
                  ,aod.asin          -- '商品的亚马逊商品编码',
                  ,aod.seller_sku    --'销售SKU',
                  ,COUNT(DISTINCT aod.amazon_order_id) AS sale_order_num  --订单数
@@ -94,17 +100,21 @@ left join (SELECT
             FROM  ymx.ods_amazon_order_original aoo
                       JOIN ymx.ods_amazon_order_detail aod
                            ON aoo.aoo_id = aod.aoo_id
-            where date_format(purchase_date_local,'%Y-%m-%d') = '${start_date}'
+            where date_format(aoo.purchase_date_local,'%Y-%m-%d') >= '${start_date}'
+              and date_format(aoo.purchase_date_local,'%Y-%m-%d') < '${end_date}'
               and aoo.order_status != 'Canceled'
             group by   aod.user_account
                    ,aod.asin
                    ,aod.seller_sku
+                   ,date_format(aoo.purchase_date_local,'%Y-%m-%d')
 ) d
-on  c.user_account = d.user_account
+on  c.currency_date=d.stat_date
+     and c.user_account = d.user_account
     and c.asin = d.asin        
     and c.seller_sku = d.seller_sku  
 left join (SELECT
-               user_account
+                 generated_date as stat_date
+                ,user_account
                 ,asin
                 ,sku
                 ,nvl(SUM(conversions7d_same_sku),0) AS ad_sale_order_num
@@ -114,45 +124,55 @@ left join (SELECT
                 ,nvl(SUM(clicks), 0) AS clicks
                 ,nvl(SUM(cost), 0) AS cost
            FROM ymx.ods_product_ad_products_report_daily
-           WHERE generated_date='${start_date}'
+           WHERE generated_date>='${start_date}'
+               and generated_date<'${end_date}'
            group by user_account
                   ,asin
-                  ,sku    
+                  ,sku   
+                  ,generated_date 
 ) e
-on c.user_account = e.user_account
+on c.currency_date=e.stat_date
+    and c.user_account = e.user_account
     and c.asin = e.asin     
     and c.seller_sku = e.sku 
 left join (SELECT
-               user_account
+                 substr(posted_date_time,1,10) as stat_date
+                ,user_account
                 ,sku
                 ,nvl(SUM(quantity_purchased),0) AS refund_amount
                 ,nvl(SUM(amount),0) AS refund_money
            from ymx.ods_amazon_v2_settlement_detail
            WHERE transaction_type='Refund'
-             AND posted_date_time>=from_utc_timestamp(to_utc_timestamp('${start_all}','GMT+8'),'UTC')
-             AND posted_date_time< from_utc_timestamp(to_utc_timestamp('${end_all}','GMT+8'),'UTC')
+             AND posted_date_time>=to_utc_timestamp('${start_all}','GMT+8')
+             AND posted_date_time< to_utc_timestamp('${end_all}','GMT+8')
            group by user_account
                   ,sku
+                  ,substr(posted_date_time,1,10)
 ) f 
-on c.user_account = f.user_account
+on  c.currency_date=f.stat_date
+    and c.user_account = f.user_account
     and c.seller_sku = f.sku 
 left join (SELECT
-               user_account
+                 substr(return_date,1,10) as stat_date
+                ,user_account
                 ,asin
                 ,sku
                 ,nvl(sum(quantity),0) as return_amount
            FROM ymx.ods_amazon_fba_fulfillment_customer_returns_data
-           WHERE  return_date>=from_utc_timestamp(to_utc_timestamp('${start_all}','GMT+8'),'UTC')  
-             AND return_date< from_utc_timestamp(to_utc_timestamp('${end_all}','GMT+8'),'UTC')
+           WHERE  return_date>=to_utc_timestamp('${start_all}','GMT+8')  
+             AND return_date< to_utc_timestamp('${end_all}','GMT+8')
            group by user_account
                   ,asin
-                  ,sku    
+                  ,sku   
+                  ,substr(return_date,1,10) 
 ) g 
-on c.user_account = g.user_account
+on c.currency_date=g.stat_date
+    and c.user_account = g.user_account
     and c.asin = g.asin     
     and c.seller_sku = g.sku 
 left join (SELECT
-                 user_account
+                 generate_date as stat_date
+                ,user_account
                 ,child_asin
                 ,seller_sku
                 ,nvl(max(sessions),0) as sessions                 --取一条即可
@@ -161,12 +181,15 @@ left join (SELECT
                 ,nvl(max(session_percentage),0) as session_percentage
                 ,nvl(max(page_views_percentage),0) as page_views_percentage
            from ymx.ods_amazon_business_report_by_child
-           WHERE generate_date='${start_date}'
+           WHERE generate_date>='${start_date}'
+               and generate_date<'${end_date}'
            group by user_account
                   ,child_asin
                   ,seller_sku
+                  ,generate_date
 ) h
-on  c.user_account = h.user_account
+on  c.currency_date=h.stat_date
+    and c.user_account = h.user_account
     and c.asin = h.child_asin        
     and c.seller_sku = h.seller_sku  
 "
