@@ -84,8 +84,9 @@ select
     ,created_time                  -- ''         
     ,updated_time                  -- ''         
     ,now() as ods_create_time   -- '导入数据时间'
-from ec_amazon_v2_settlement_detail            
-where   \$CONDITIONS" 
+from ec_amazon_v2_settlement_detail   
+where ('${start_date}'<updated_time and updated_time<'${end_date}')         
+    and \$CONDITIONS" 
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -97,7 +98,7 @@ echo "--开始导入数据到ods表--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
+    sql="insert overwrite table ymx.ods_amazon_v2_settlement_detail partition(company_code='${company_code}') 
         select 
             ras_id                                   
             ,seller_id                           
@@ -130,7 +131,27 @@ if [ $DISK_SPACE -gt 0 ];then
             ,created_time                  
             ,updated_time                  
             ,ods_create_time
-        from ${tmp_dbname}.${tmp_tbname} where company_code='${company_code}'"
+        from (
+            select 
+                t.*
+                ,row_number() over(partition by ras_id order by updated_time desc) rn
+            from(select 
+                    ras_id,seller_id,user_account,site,settlement_id,currency,transaction_type,order_id,merchant_order_id,
+                    adjustment_id,shipment_id,marketplace_name,amount_type,amount_description,amount,fulfillment_id,posted_date,
+                    posted_date_time,order_item_code,merchant_order_item_id,sku,quantity_purchased,promotion_id,
+                    merchant_adjustment_item_id,row_key,row_index,report_id,settlement_index,created_time,updated_time,ods_create_time
+                from ymx_tmp.ods_amazon_v2_settlement_detail where company_code='${company_code}'
+                union all 
+                select 
+                    ras_id,seller_id,user_account,site,settlement_id,currency,transaction_type,order_id,merchant_order_id,
+                    adjustment_id,shipment_id,marketplace_name,amount_type,amount_description,amount,fulfillment_id,posted_date,
+                    posted_date_time,order_item_code,merchant_order_item_id,sku,quantity_purchased,promotion_id,
+                    merchant_adjustment_item_id,row_key,row_index,report_id,settlement_index,created_time,updated_time,ods_create_time
+                from ymx.ods_amazon_v2_settlement_detail where company_code='${company_code}'
+            ) t 
+        ) tt
+        where rn=1  
+        "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
     /opt/module/hive-3.1.2/bin/hive -e "${sql}"
 else

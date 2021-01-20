@@ -73,8 +73,9 @@ select
     ,created_time          -- '创建时间'            
     ,updated_time          -- '更新时间'            
     ,now() as ods_create_time   -- '导入数据时间'
-from ec_amazon_fba_fulfillment_customer_returns_data            
-where   \$CONDITIONS" 
+from ec_amazon_fba_fulfillment_customer_returns_data       
+where ('${start_date}'<updated_time and updated_time<'${end_date}')     
+    and \$CONDITIONS" 
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -86,7 +87,7 @@ echo "--开始导入数据到ods表--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
+    sql="insert overwrite table ymx.ods_amazon_fba_fulfillment_customer_returns_data partition(company_code='${company_code}') 
         select 
             affcrd_id              
             ,seller_id                      
@@ -108,7 +109,25 @@ if [ $DISK_SPACE -gt 0 ];then
             ,created_time                      
             ,updated_time                      
             ,ods_create_time
-        from ${tmp_dbname}.${tmp_tbname} where company_code='${company_code}'"
+        from (
+            select 
+                t.*
+                ,row_number() over(partition by affcrd_id order by updated_time desc) rn
+            from(select 
+                    affcrd_id,seller_id,user_account,sku,asin,fnsku,order_id,return_date,product_name,quantity,fulfillment_center_id,
+                    detailed_disposition,reason,status,license_plate_number,customer_comments,row_index,created_time,updated_time,
+                    ods_create_time
+                from ymx_tmp.ods_amazon_fba_fulfillment_customer_returns_data where company_code='${company_code}'
+                union all 
+                select 
+                    affcrd_id,seller_id,user_account,sku,asin,fnsku,order_id,return_date,product_name,quantity,fulfillment_center_id,
+                    detailed_disposition,reason,status,license_plate_number,customer_comments,row_index,created_time,updated_time,
+                    ods_create_time
+                from ymx.ods_amazon_fba_fulfillment_customer_returns_data where company_code='${company_code}'
+            ) t 
+        ) tt
+        where rn=1  
+        "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
     /opt/module/hive-3.1.2/bin/hive -e "${sql}"
 else

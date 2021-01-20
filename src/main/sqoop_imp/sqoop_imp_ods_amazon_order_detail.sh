@@ -104,7 +104,8 @@ select
     ,updated_time                      --'更新时间'                                     
     ,now() as ods_create_time   -- '导入数据时间'
 from ec_amazon_order_detail            
-where   \$CONDITIONS" 
+where ('${start_date}'<updated_time and updated_time<'${end_date}')
+    and \$CONDITIONS" 
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -116,7 +117,7 @@ echo "--开始导入数据到ods表--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
+    sql="insert overwrite table ymx.ods_amazon_order_detail partition(company_code='${company_code}') 
         select 
             aod_id                             
             ,aoo_id                             
@@ -168,7 +169,38 @@ if [ $DISK_SPACE -gt 0 ];then
             ,created_time                      
             ,updated_time                      
             ,ods_create_time
-        from ${tmp_dbname}.${tmp_tbname} where company_code='${company_code}'"
+
+        from (
+            select 
+                t.*
+                ,row_number() over(partition by aod_id order by updated_time desc) rn
+            from(select 
+                    aod_id,aoo_id,user_account,amazon_order_id,asin,seller_sku,order_item_id,title,quantity_ordered,quantity_shipped,
+                    gift_message_text,item_sale_amount,gift_wrap_level,item_price_currency_code,item_price_amount,shipping_price_currency_code,
+                    shipping_price_amount,gift_wrap_price_currency_code,gift_wrap_price_amount,item_tax_currency_code,item_tax_amount,
+                    shipping_tax_currency_code,shipping_tax_amount,gift_wrap_tax_currency_code,gift_wrap_tax_amount,shipping_discount_currency_code,
+                    shipping_discount_amount,promotion_discount_currency_code,promotion_discount_amount,cod_fee_currency_code,cod_fee_amount,
+                    cod_fee_discount_currency_code,cod_fee_discount_amount,invoice_requirement,invoice_buyer_selected_category,invoice_title,
+                    invoice_information,condition_id,condition_subtype_id,condition_note,scheduled_delivery_start_date,scheduled_delivery_end_date,
+                    price_designation,payments_date,buyer_phone_number,delivery_instructions,delivery_time_zone,created_time,updated_time,
+                    ods_create_time
+                from ymx_tmp.ods_amazon_order_detail where company_code='${company_code}'
+                union all 
+                select 
+                    aod_id,aoo_id,user_account,amazon_order_id,asin,seller_sku,order_item_id,title,quantity_ordered,quantity_shipped,
+                    gift_message_text,item_sale_amount,gift_wrap_level,item_price_currency_code,item_price_amount,shipping_price_currency_code,
+                    shipping_price_amount,gift_wrap_price_currency_code,gift_wrap_price_amount,item_tax_currency_code,item_tax_amount,
+                    shipping_tax_currency_code,shipping_tax_amount,gift_wrap_tax_currency_code,gift_wrap_tax_amount,shipping_discount_currency_code,
+                    shipping_discount_amount,promotion_discount_currency_code,promotion_discount_amount,cod_fee_currency_code,cod_fee_amount,
+                    cod_fee_discount_currency_code,cod_fee_discount_amount,invoice_requirement,invoice_buyer_selected_category,invoice_title,
+                    invoice_information,condition_id,condition_subtype_id,condition_note,scheduled_delivery_start_date,scheduled_delivery_end_date,
+                    price_designation,payments_date,buyer_phone_number,delivery_instructions,delivery_time_zone,created_time,updated_time,
+                    ods_create_time
+                from ymx.ods_amazon_order_detail where company_code='${company_code}'
+            ) t 
+        ) tt
+        where rn=1    
+        "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
     /opt/module/hive-3.1.2/bin/hive -e "${sql}"
 else

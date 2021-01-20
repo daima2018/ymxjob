@@ -101,8 +101,9 @@ select
     ,order_amount              -- '时间段内店铺金额'                       
     ,order_total               -- '时间段内订单数量'            
     ,now() as ods_create_time   -- '导入数据时间'
-from product_ad_products_report_daily            
-where   \$CONDITIONS" 
+from product_ad_products_report_daily       
+where ('${start_date}'<updated_time and updated_time<'${end_date}')     
+    and \$CONDITIONS" 
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -114,7 +115,7 @@ echo "--开始导入数据到ods表--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
+    sql="insert overwrite table ymx.ods_product_ad_products_report_daily partition(company_code='${company_code}') 
         select 
              paprdy_id                 
             ,user_account                              
@@ -164,7 +165,31 @@ if [ $DISK_SPACE -gt 0 ];then
             ,order_amount                           
             ,order_total                           
             ,ods_create_time
-        from ${tmp_dbname}.${tmp_tbname} where company_code='${company_code}'"
+        from (
+            select 
+                t.*
+                ,row_number() over(partition by paprdy_id order by updated_time desc) rn
+            from(select 
+                    paprdy_id,user_account,profile_id,campaign_id,campaign_name,ad_group_id,ad_group_name,asin,sku,item_name,
+                    aapr_status,ad_id,currency,impressions,clicks,cost,generated_date,conversions1d,conversions1d_same_sku,
+                    units_ordered1d,units_ordered1d_same_sku,sales1d,sales1d_same_sku,conversion1d_rate,ctr,cpc,acos1d,product_amount,
+                    create_id,created_time,update_id,updated_time,order_proportion,sale_proportion,cost_proportion,cpa,roas,
+                    conversions7d,conversions7d_same_sku,units_ordered7d,sales7d,sales7d_same_sku,conversion7d_rate,acos7d,
+                    units_ordered7d_same_sku,order_amount,order_total,ods_create_time
+                from ymx_tmp.ods_product_ad_products_report_daily where company_code='${company_code}'
+                union all 
+                select 
+                    paprdy_id,user_account,profile_id,campaign_id,campaign_name,ad_group_id,ad_group_name,asin,sku,item_name,
+                    aapr_status,ad_id,currency,impressions,clicks,cost,generated_date,conversions1d,conversions1d_same_sku,
+                    units_ordered1d,units_ordered1d_same_sku,sales1d,sales1d_same_sku,conversion1d_rate,ctr,cpc,acos1d,product_amount,
+                    create_id,created_time,update_id,updated_time,order_proportion,sale_proportion,cost_proportion,cpa,roas,
+                    conversions7d,conversions7d_same_sku,units_ordered7d,sales7d,sales7d_same_sku,conversion7d_rate,acos7d,
+                    units_ordered7d_same_sku,order_amount,order_total,ods_create_time
+                from ymx.ods_product_ad_products_report_daily where company_code='${company_code}'
+            ) t 
+        ) tt
+        where rn=1 
+        "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
     /opt/module/hive-3.1.2/bin/hive -e "${sql}"
 else
