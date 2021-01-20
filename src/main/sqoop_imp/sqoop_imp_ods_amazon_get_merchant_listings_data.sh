@@ -122,7 +122,8 @@ select
     ,parent_md5_key                -- '父asin的MD5加密串'   
     ,now() as ods_create_time   -- '导入数据时间'
 from ec_amazon_get_merchant_listings_data            
-where   \$CONDITIONS" 
+where ('${start_date}'<updated_time and updated_time<'${end_date}')
+and \$CONDITIONS" 
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -134,7 +135,7 @@ echo "--开始导入数据到ods表--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
+    sql="insert overwrite table ymx.ods_amazon_get_merchant_listings_data partition(company_code='${company_code}') 
         select 
             id                                                          
             ,user_account                                              
@@ -203,10 +204,41 @@ if [ $DISK_SPACE -gt 0 ];then
             ,auto_price_id                         
             ,md5_key                                                  
             ,parent_md5_key                
-            ,ods_create_time                  
-        from ${tmp_dbname}.${tmp_tbname} where company_code='${company_code}'"
+            ,ods_create_time         
+        from(select 
+                t.*
+                ,row_number() over(partition by id order by updated_time desc) rn
+            from(select 
+                    id,user_account,listing_id,seller_sku,product_id,product_id_lite,item_name,item_description,price,quantity,open_date,image_url,
+                    item_is_marketplace,product_id_type,zshop_shipping_fee,item_note,item_condition,zshop_category1,zshop_browse_path,zshop_storefront_feature,
+                    asin1,asin2,asin3,parent_asin,sales_num,last_update_time,will_ship_internationally,expedited_shipping,zshop_boldface,
+                    bid_for_featured_placement,add_delete,pending_quantity,fulfillment_channel,created_time,updated_time,item_status,fulfillment_type,
+                    business_price,quantity_price_type,quantity_lower_bound1,quantity_price1,quantity_lower_bound2,quantity_price2,quantity_lower_bound3,
+                    quantity_price3,quantity_lower_bound4,quantity_price4,quantity_lower_bound5,merchant_shipping_group,progressive_price_type,
+                    progressive_lower_bound1,progressive_price1,progressive_lower_bound2,progressive_price2,progressive_lower_bound3,progressive_price3,
+                    seller_id,top_time,is_new,inventory_min_num,inventory_max_num,history_lowest_price,history_highest_price,auto_inventory_id,auto_price_id,
+                    md5_key,parent_md5_key,ods_create_time
+                from ymx_tmp.ods_amazon_get_merchant_listings_data where company_code='${company_code}'
+                union all 
+                select 
+                    id,user_account,listing_id,seller_sku,product_id,product_id_lite,item_name,item_description,price,quantity,open_date,image_url,
+                    item_is_marketplace,product_id_type,zshop_shipping_fee,item_note,item_condition,zshop_category1,zshop_browse_path,zshop_storefront_feature,
+                    asin1,asin2,asin3,parent_asin,sales_num,last_update_time,will_ship_internationally,expedited_shipping,zshop_boldface,
+                    bid_for_featured_placement,add_delete,pending_quantity,fulfillment_channel,created_time,updated_time,item_status,fulfillment_type,
+                    business_price,quantity_price_type,quantity_lower_bound1,quantity_price1,quantity_lower_bound2,quantity_price2,quantity_lower_bound3,
+                    quantity_price3,quantity_lower_bound4,quantity_price4,quantity_lower_bound5,merchant_shipping_group,progressive_price_type,
+                    progressive_lower_bound1,progressive_price1,progressive_lower_bound2,progressive_price2,progressive_lower_bound3,progressive_price3,
+                    seller_id,top_time,is_new,inventory_min_num,inventory_max_num,history_lowest_price,history_highest_price,auto_inventory_id,auto_price_id,
+                    md5_key,parent_md5_key,ods_create_time
+                from ymx.ods_amazon_get_merchant_listings_data where company_code='${company_code}'
+            ) t 
+        ) tt
+        where rn=1     
+        "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
-    /opt/module/hive-3.1.2/bin/hive -e "${sql}"
+    /opt/module/hive-3.1.2/bin/hive -e "
+        set hive.exec.parallel=true;    
+        ${sql}"
 else
         echo '未获取到数据！！！'
 fi

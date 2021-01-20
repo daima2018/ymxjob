@@ -91,7 +91,7 @@ from (select * from ymx.dwd_listing_currency_rate_d
      where company_code='${company_code}' and currency_date>='${start_date}' and currency_date<'${end_date}'
 ) c 
 left join (SELECT
-                  date_format(aoo.purchase_date_local,'%Y-%m-%d') as stat_date
+                  date_format(aoo.purchase_date_local,'yyyy-MM-dd') as stat_date
                  ,aod.user_account  --'店铺账号',
                  ,aod.asin          -- '商品的亚马逊商品编码',
                  ,aod.seller_sku    --'销售SKU',
@@ -101,13 +101,13 @@ left join (SELECT
             FROM  ymx.ods_amazon_order_original aoo
                       JOIN ymx.ods_amazon_order_detail aod
                            ON aoo.aoo_id = aod.aoo_id
-            where date_format(aoo.purchase_date_local,'%Y-%m-%d') >= '${start_date}'
-              and date_format(aoo.purchase_date_local,'%Y-%m-%d') < '${end_date}'
+            where date_format(aoo.purchase_date_local,'yyyy-MM-dd') >= '${start_date}'
+              and date_format(aoo.purchase_date_local,'yyyy-MM-dd') < '${end_date}'
               and aoo.order_status != 'Canceled'
             group by   aod.user_account
                    ,aod.asin
                    ,aod.seller_sku
-                   ,date_format(aoo.purchase_date_local,'%Y-%m-%d')
+                   ,date_format(aoo.purchase_date_local,'yyyy-MM-dd')
 ) d
 on  c.currency_date=d.stat_date
      and c.user_account = d.user_account

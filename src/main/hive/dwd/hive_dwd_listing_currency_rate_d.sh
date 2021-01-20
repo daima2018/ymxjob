@@ -56,10 +56,14 @@ select
     ,min(case when ttt1.currency_site = ttt1.currency_local then 1
               when ttt1.currency_local= ttt2.currency_code then ttt2.currency_rate
      end)  as local_rate      -- 本位币汇率                                                
-    ,min(case when ttt2.currency_code='USD' then ttt2.currency_rate end) as usd_rate  -- '美元汇率'     
-    ,min(case when ttt2.currency_code='EUR' then ttt2.currency_rate end) as eur_rate  -- '欧元汇率'     
-    ,min(case when ttt2.currency_code='GBP' then ttt2.currency_rate end) as gbp_rate  -- '英镑汇率'     
-    ,min(case when ttt2.currency_code='JPY' then ttt2.currency_rate end) as jpy_rate  -- '日元汇率'     
+    ,min(case when ttt1.currency_site='USD' then 1
+            when ttt2.currency_code='USD' then ttt2.currency_rate end) as usd_rate  -- '美元汇率'     
+    ,min(case when ttt1.currency_site='EUR' then 1
+            when ttt2.currency_code='EUR' then ttt2.currency_rate end) as eur_rate  -- '欧元汇率'     
+    ,min(case when ttt1.currency_site='GBP' then 1
+            when ttt2.currency_code='GBP' then ttt2.currency_rate end) as gbp_rate  -- '英镑汇率'     
+    ,min(case when ttt1.currency_site='JPY' then 1 
+            when ttt2.currency_code='JPY' then ttt2.currency_rate end) as jpy_rate  -- '日元汇率'     
     ,ttt1.currency_date        --汇率日期
 from (select a.*,b.currency_date from ymx.dwd_listing_d a
      lateral view explode(split('${string_array}',',')) b as currency_date

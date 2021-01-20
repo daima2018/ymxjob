@@ -106,7 +106,8 @@ select
     ,updated_time                    -- '系统最后更新时间'                     
     ,now() as ods_create_time   -- '导入数据时间'
 from ec_amazon_order_original            
-where   \$CONDITIONS" 
+where ('${start_date}'<updated_time and updated_time<'${end_date}')
+    and \$CONDITIONS" 
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -118,7 +119,7 @@ echo "--开始导入数据到ods表--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
+    sql="insert overwrite table ymx.ods_amazon_order_original partition(company_code='${company_code}') 
         select 
             aoo_id                            
             ,amazon_order_id                  
@@ -172,7 +173,35 @@ if [ $DISK_SPACE -gt 0 ];then
             ,created_time                     
             ,updated_time                     
             ,ods_create_time
-        from ${tmp_dbname}.${tmp_tbname} where company_code='${company_code}'"
+        from (
+            select 
+                t.*
+                ,row_number() over(partition by aoo_id order by updated_time desc) rn
+            from(select 
+                    aoo_id,amazon_order_id,seller_order_id,site,user_account,purchase_date_site,purchase_date_local,purchase_date,
+                    last_update_date,order_status,fulfillment_channel,sales_channel,order_channel,ship_service_level,order_type,currency_code,
+                    amount,sale_amount,payment_method,marketplace_id,buyer_email,buyer_name,earliest_ship_date,latest_ship_date,
+                    shipment_service_level_category,shipped_amazon_tfm,tfm_shipment_status,cba_displayable_shipping_label,number_items_shipped,
+                    number_items_unshipped,shipping_address_name,shipping_address_phone,shipping_address_country_code,shipping_address_state,
+                    shipping_address_district,shipping_address_county,shipping_address_city,shipping_address_postal_code,shipping_address_address1,
+                    shipping_address_address2,shipping_address_address3,shipping_address_type,is_loaded,purchase_order_number,is_business_order,
+                    is_prime,earliest_delivery_date,latest_delivery_date,is_sold_by_ab,created_time,updated_time,ods_create_time
+                from ymx_tmp.ods_amazon_order_original where company_code='${company_code}'
+                union all 
+                select 
+                    aoo_id,amazon_order_id,seller_order_id,site,user_account,purchase_date_site,purchase_date_local,purchase_date,
+                    last_update_date,order_status,fulfillment_channel,sales_channel,order_channel,ship_service_level,order_type,currency_code,
+                    amount,sale_amount,payment_method,marketplace_id,buyer_email,buyer_name,earliest_ship_date,latest_ship_date,
+                    shipment_service_level_category,shipped_amazon_tfm,tfm_shipment_status,cba_displayable_shipping_label,number_items_shipped,
+                    number_items_unshipped,shipping_address_name,shipping_address_phone,shipping_address_country_code,shipping_address_state,
+                    shipping_address_district,shipping_address_county,shipping_address_city,shipping_address_postal_code,shipping_address_address1,
+                    shipping_address_address2,shipping_address_address3,shipping_address_type,is_loaded,purchase_order_number,is_business_order,
+                    is_prime,earliest_delivery_date,latest_delivery_date,is_sold_by_ab,created_time,updated_time,ods_create_time
+                from ymx.ods_amazon_order_original where company_code='${company_code}'
+            ) t 
+        ) tt
+        where rn=1    
+        "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
     /opt/module/hive-3.1.2/bin/hive -e "${sql}"
 else

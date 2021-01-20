@@ -66,7 +66,10 @@ select
     ,md5_key                    -- 'user_account.asin.seller_sku的MD5值'    
     ,now() as ods_create_time   -- '导入数据时间'
 from ec_amazon_parent_listing            
-where   \$CONDITIONS" 
+where ('${start_date}'<updated_time and updated_time<'${end_date}')
+    and \$CONDITIONS" 
+
+#created_time和updated_time的格式为yyyy-MM-dd HH:mm:ss
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -78,23 +81,28 @@ echo "--开始导入数据到ods表--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname} partition(company_code='${company_code}') 
-        select 
-             id          
-            ,asin        
-            ,user_account
-            ,seller_sku  
-            ,created_time
-            ,updated_time
-            ,is_parent   
-            ,top_time    
-            ,image_url   
-            ,item_name   
-            ,md5_key      
-            ,ods_create_time
-        from ${tmp_dbname}.${tmp_tbname} where company_code='${company_code}'"
+    sql="insert overwrite table ymx.ods_amazon_parent_listing partition(company_code='${company_code}') 
+        select
+            id,asin,user_account,seller_sku,created_time,updated_time,is_parent,top_time,image_url,item_name,md5_key,ods_create_time
+        from (
+            select 
+                t.*
+                ,row_number() over(partition by id order by updated_time desc) rn
+            from(select 
+                    id,asin,user_account,seller_sku,created_time,updated_time,is_parent,top_time,image_url,item_name,md5_key,ods_create_time
+                from ymx_tmp.ods_amazon_parent_listing where company_code='${company_code}'
+                union all 
+                select 
+                    id,asin,user_account,seller_sku,created_time,updated_time,is_parent,top_time,image_url,item_name,md5_key,ods_create_time
+                from ymx.ods_amazon_parent_listing where company_code='${company_code}'
+            ) t 
+        ) tt
+        where rn=1        
+        "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
-    /opt/module/hive-3.1.2/bin/hive -e "${sql}"
+    /opt/module/hive-3.1.2/bin/hive -e "
+        set hive.exec.parallel=true;    
+        ${sql}"
 else
         echo '未获取到数据！！！'
 fi

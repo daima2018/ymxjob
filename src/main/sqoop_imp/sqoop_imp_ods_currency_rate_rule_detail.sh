@@ -60,7 +60,8 @@ select
     ,updated_time               -- '更新时间'
     ,now() as ods_create_time   -- '导入数据时间'
 from ec_currency_rate_rule_detail            
-where   \$CONDITIONS" 
+where ('${start_date}'<updated_time and updated_time<'${end_date}')
+    and \$CONDITIONS" 
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -72,7 +73,7 @@ echo "--开始导入数据到ods表--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname}  
+    sql="insert overwrite table ymx.ods_currency_rate_rule_detail  
         select 
              crrd_id                    
             ,crr_id                   
@@ -81,7 +82,21 @@ if [ $DISK_SPACE -gt 0 ];then
             ,created_time             
             ,updated_time             
             ,ods_create_time
-        from ${tmp_dbname}.${tmp_tbname} "
+        from (
+            select 
+                t.*
+                ,row_number() over(partition by crrd_id order by updated_time desc) rn
+            from(select 
+                    crrd_id,crr_id,crrd_currency_code,crrd_currency_rate,created_time,updated_time,ods_create_time
+                from ymx_tmp.ods_currency_rate_rule_detail 
+                union all 
+                select 
+                    crrd_id,crr_id,crrd_currency_code,crrd_currency_rate,created_time,updated_time,ods_create_time
+                from ymx.ods_currency_rate_rule_detail 
+            ) t 
+        ) tt
+        where rn=1
+        "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
     /opt/module/hive-3.1.2/bin/hive -e "${sql}"
 else

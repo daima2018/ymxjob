@@ -37,14 +37,13 @@ from (select
         ,t2.currency_code currency_site   --站点币种
         ,t3.currency_local                --本位币
     from (select * from ymx.ods_amazon_parent_listing 
-            where company_code = '${company_code}') t1
+            where company_code = '${company_code}' and is_parent=1) t1
     left join (select site,user_account,currency_code from ymx.ods_platform_user
             where company_code = '${company_code}') t2
         on t1.user_account = t2.user_account
     left join (select currency_local from ymx.ods_company where company_code = '${company_code}') t3
 ) tt1 join ymx.ods_amazon_get_merchant_listings_data tt2
-        on tt1.is_parent=1
-            and tt2.parent_asin != tt2.asin1
+        on  tt2.parent_asin != tt2.asin1
             and tt2.item_status='on_sale'
             and tt1.user_account=tt2.user_account
             and tt1.asin=tt2.parent_asin
@@ -52,30 +51,20 @@ from (select
 union all
 
 select
-    tt1.site
-    ,tt1.user_account
-    ,tt1.asin   as parent_asin
-    ,tt1.asin
-    ,tt1.seller_sku
+    t2.site
+    ,t1.user_account
+    ,t1.asin    as parent_asin
+    ,t1.asin
+    ,t1.seller_sku
     ,2 as asin_type
-    ,tt1.currency_site
-    ,tt1.currency_local
-from (select
-        t2.site
-        ,t1.user_account
-        ,t1.asin
-        ,t1.seller_sku
-        ,t1.is_parent
-        ,t2.currency_code currency_site   --站点币种
-        ,t3.currency_local                --本位币
-    from (select * from ymx.ods_amazon_parent_listing 
-            where company_code = '${company_code}') t1
-    left join (select site,user_account,currency_code from ymx.ods_platform_user
-            where company_code = '${company_code}') t2
-        on t1.user_account = t2.user_account
-    left join (select currency_local from ymx.ods_company where company_code = '${company_code}') t3
-) tt1
-where tt1.is_parent!=1
+    ,t2.currency_code currency_site   --站点币种
+    ,t3.currency_local                --本位币
+from (select * from ymx.ods_amazon_parent_listing 
+        where company_code = '${company_code}' and is_parent!=1) t1
+left join (select site,user_account,currency_code from ymx.ods_platform_user
+        where company_code = '${company_code}') t2
+    on t1.user_account = t2.user_account
+left join (select currency_local from ymx.ods_company where company_code = '${company_code}') t3
 "
 
 #如果执行失败就退出
