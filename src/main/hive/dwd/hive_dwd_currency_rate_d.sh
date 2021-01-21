@@ -14,7 +14,7 @@ getparam(){
 start_date=`getparam start_date`
 end_date=`getparam end_date`
 
-/opt/module/hive-3.1.2/bin/hive -e "
+hive -e "
 insert overwrite table ymx.dwd_currency_rate_d
 select
      a.crr_date            as currency_date     

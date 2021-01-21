@@ -5,7 +5,7 @@
 #目标表 ods_platform_user
 #############################################################
 
-source /opt/jobs/conf/sqoop-job-conf.sh
+source /home/ecm/ymx/conf/sqoop-job-conf.sh
 
 #获取脚本参数
 opts=$@
@@ -36,7 +36,7 @@ echo "--db_username:${db_username}"
 echo "--db_password:${db_password}"
 
 
-/opt/module/sqoop/bin/sqoop import \
+sqoop import \
 --connect ${db_connect} \
 --username ${db_username} \
 --password ${db_password} \
@@ -150,7 +150,7 @@ if [ $DISK_SPACE -gt 0 ];then
             ,ods_create_time   
         from ${tmp_dbname}.${tmp_tbname} where company_code='${company_code}'"
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
-    /opt/module/hive-3.1.2/bin/hive -e "${sql}"
+    hive -e "${sql}"
 else
         echo '未获取到数据！！！'
 fi

@@ -4,7 +4,7 @@
 #名称   listing统计表(本地时间)
 #############################################################
 
-source /opt/jobs/conf/sqoop-job-conf.sh
+source /home/ecm/ymx/conf/sqoop-job-conf.sh
 
 #获取脚本参数
 opts=$@
@@ -33,7 +33,7 @@ echo "--connect:${db_connect}"
 echo "--db_username:${db_username}"
 echo "--db_password:${db_password}"
 
-/opt/module/hive-3.1.2/bin/hive -e "
+hive -e "
 insert overwrite direcotry '${target_dir}'
 select
     user_account
@@ -81,33 +81,10 @@ select
     ,buy_box_percentage
     ,session_percentage
     ,page_views_percentage
-from '${hive_dbname}'.'${hive_tbname}' 
+from ymx.dwt_listing_sum_local_d 
 where company_code='${company_code}' 
     and stat_date>='${start_date}' and stat_date<'${end_date}'
 "
-
-
-/opt/module/sqoop/bin/sqoop import \
---connect ${db_connect} \
---username ${db_username} \
---password ${db_password} \
---hive-overwrite \
---target-dir $target_dir \
---num-mappers 1        \
---delete-target-dir \
---hive-database $tmp_dbname \
---hive-drop-import-delims \
---null-string '\\N'  \
---null-non-string '\\N' \
---hive-table $tmp_tbname     \
---fields-terminated-by '\t' \
---lines-terminated-by '\n'   \
---query "
-select
-
-
-from dwt_listing_sum_local_d where             
-where   \$CONDITIONS" 
 
 #如果执行失败就退出
 if [ $? -ne 0 ];then
@@ -115,35 +92,20 @@ if [ $? -ne 0 ];then
      exit $?
 fi
 
-echo "--开始导入数据到ods表--"
+echo "--开始导出数据--"
 
 DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
 if [ $DISK_SPACE -gt 0 ];then
-    sql="insert overwrite table ${ods_dbname}.${ods_tbname}  
-        select 
-            company_id             
-            ,company_code                            
-            ,company_short                            
-            ,company_name                            
-            ,company_auth                            
-            ,company_type                         
-            ,company_status                      
-            ,company_level                         
-            ,verified_status                         
-            ,mobile                           
-            ,company_name_cn                           
-            ,company_inner_source                         
-            ,company_source                         
-            ,deploy_status         
-            ,season                            
-            ,db_code                          
-            ,currency_local                           
-            ,created_time                            
-            ,updated_time                            
-            ,ods_create_time
-        from ${tmp_dbname}.${tmp_tbname} "
-    echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
-    /opt/module/hive-3.1.2/bin/hive -e "${sql}"
+    sqoop export             \
+    --connect ${db_connect} \
+    --username ${db_username} \
+    --password ${db_password} \
+    --table listing_sum_local_d              \
+    --num-mappers 1                          \
+    --export-dir ${target_dir}   \
+    --input-fields-terminated-by "\t"          \
+    --input-null-string '\\N'                    \
+    --input-null-non-string '\\N'               
 else
         echo '未获取到数据！！！'
 fi

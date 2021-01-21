@@ -37,7 +37,7 @@ fi
 echo $string_array
 
 
-/opt/module/hive-3.1.2/bin/hive -e "
+hive -e "
 set hive.exec.dynamic.partition=true;  -- 开启动态分区，默认是false
 set hive.exec.dynamic.partition.mode=nonstrict; -- 开启允许所有分区都是动态的，否则必须要有静态分区才能使用。
 set mapred.reduce.tasks=4;

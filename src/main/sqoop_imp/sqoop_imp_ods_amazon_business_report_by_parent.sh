@@ -5,7 +5,7 @@
 #目标表 ods_amazon_business_report_by_parent
 #############################################################
 
-source /opt/jobs/conf/sqoop-job-conf.sh
+source /home/ecm/ymx/conf/sqoop-job-conf.sh
 
 #获取脚本参数
 opts=$@
@@ -36,7 +36,7 @@ echo "--db_username:${db_username}"
 echo "--db_password:${db_password}"
 
 
-/opt/module/sqoop/bin/sqoop import \
+sqoop import \
 --connect ${db_connect} \
 --username ${db_username} \
 --password ${db_password} \
@@ -139,7 +139,7 @@ if [ $DISK_SPACE -gt 0 ];then
         where rn=1        
         "
     echo "--$DISK_SPACE 文件目录已经存在，执行数据写入操作$sql"
-    /opt/module/hive-3.1.2/bin/hive -e "${sql}"
+    hive -e "${sql}"
 else
         echo '未获取到数据！！！'
 fi
