@@ -1,4 +1,4 @@
-CREATE TABLE if not exists `ods_product_ad_products_report_daily` (
+CREATE TABLE if not exists `ymx.ods_product_ad_products_report_daily` (
      paprdy_id                 int             comment ''                     
     ,user_account              string          comment '平台账号'                
     ,profile_id                bigint          comment 'profileId'              
@@ -50,3 +50,5 @@ CREATE TABLE if not exists `ods_product_ad_products_report_daily` (
 ) comment 'Amazon广告产品报告日表'
 partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;
+
+create table if not exists ymx_tmp.ods_product_ad_products_report_daily like ymx.ods_product_ad_products_report_daily;

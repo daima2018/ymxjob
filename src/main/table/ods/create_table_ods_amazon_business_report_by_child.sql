@@ -1,4 +1,4 @@
-CREATE TABLE if not exists `ods_amazon_business_report_by_child` (
+CREATE TABLE if not exists `ymx.ods_amazon_business_report_by_child`(
      id                          int            comment ''   
     ,user_account                string         comment '店铺账号'         
     ,seller_id                   string         comment '卖家销售id'      
@@ -28,3 +28,5 @@ CREATE TABLE if not exists `ods_amazon_business_report_by_child` (
 ) comment 'BusinessReport流量报告子asin维度'
 partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;
+
+create table if not exists ymx_tmp.ods_amazon_business_report_by_child like ymx.ods_amazon_business_report_by_child;

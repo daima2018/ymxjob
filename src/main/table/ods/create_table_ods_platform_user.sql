@@ -1,4 +1,4 @@
-CREATE TABLE if not exists ods_platform_user (
+CREATE TABLE if not exists ymx.ods_platform_user (
      pu_id                    int  comment ''
     ,user_account             string COMMENT '平台账号'
     ,short_name               string COMMENT '简称'
@@ -42,3 +42,5 @@ CREATE TABLE if not exists ods_platform_user (
 ) comment '用户表'
 partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;
+
+create table if not exists ymx_tmp.ods_platform_user like ymx.ods_platform_user;

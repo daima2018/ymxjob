@@ -1,4 +1,4 @@
-CREATE TABLE if not exists `ods_amazon_order_detail` (
+CREATE TABLE if not exists `ymx.ods_amazon_order_detail` (
      aod_id                            int       comment '自增长序列'                          
     ,aoo_id                            int       comment 'amazon订单原始表主键ID'                                
     ,user_account                      string   comment '店铺账号'                                    
@@ -52,3 +52,5 @@ CREATE TABLE if not exists `ods_amazon_order_detail` (
 ) comment 'amazon原始订单明细表'
 partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;
+
+create table if not exists ymx_tmp.ods_amazon_order_detail like ymx.ods_amazon_order_detail;

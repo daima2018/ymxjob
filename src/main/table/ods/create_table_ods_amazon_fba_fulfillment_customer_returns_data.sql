@@ -1,4 +1,4 @@
-CREATE TABLE if not exists `ods_amazon_fba_fulfillment_customer_returns_data` (
+CREATE TABLE if not exists `ymx.ods_amazon_fba_fulfillment_customer_returns_data` (
      affcrd_id             int     comment ''      
     ,seller_id             string  comment 'seller_id'         
     ,user_account          string  comment '店铺账号'                 
@@ -22,3 +22,5 @@ CREATE TABLE if not exists `ods_amazon_fba_fulfillment_customer_returns_data` (
 ) comment '亚马逊客户退货数据'
 partitioned by (company_code string comment '公司代码')
 row format delimited fields terminated by '\t' stored as textfile;
+
+create table if not exists ymx_tmp.ods_amazon_fba_fulfillment_customer_returns_data like ymx.ods_amazon_fba_fulfillment_customer_returns_data;

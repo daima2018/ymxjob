@@ -1,4 +1,4 @@
-CREATE TABLE if not exists ods_currency_rate_rule_detail (
+CREATE TABLE if not exists ymx.ods_currency_rate_rule_detail (
      crrd_id             int COMMENT ''
     ,crr_id              int COMMENT '规则ID'
     ,crrd_currency_code  string COMMENT '币种简称'
@@ -8,3 +8,5 @@ CREATE TABLE if not exists ods_currency_rate_rule_detail (
     ,ods_create_time     string comment '导入数据时间'
 ) COMMENT '汇率明细表'
 row format delimited fields terminated by '\t' stored as textfile;
+
+create table if not exists ymx_tmp.ods_currency_rate_rule_detail like ymx.ods_currency_rate_rule_detail;

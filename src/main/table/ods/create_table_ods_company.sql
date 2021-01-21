@@ -1,4 +1,4 @@
-CREATE TABLE if not exists ods_company (
+CREATE TABLE if not exists ymx.ods_company (
      company_id             int     comment  ''            
     ,company_code          string  comment  '客户代码'                  
     ,company_short         string  comment  '简称'                   
@@ -20,4 +20,6 @@ CREATE TABLE if not exists ods_company (
     ,updated_time          string  comment  '更新时间'                  
     ,ods_create_time       string  comment  '导入数据时间'                     
 ) COMMENT '客户主表'
-row format delimited fields terminated by '\t' stored as textfile;                                             
+row format delimited fields terminated by '\t' stored as textfile;       
+
+create table if not exists ymx_tmp.ods_company like ymx.ods_company;

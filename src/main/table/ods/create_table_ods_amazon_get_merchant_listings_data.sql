@@ -1,4 +1,4 @@
-CREATE TABLE if not exists  ods_amazon_get_merchant_listings_data  (
+CREATE TABLE if not exists  ymx.ods_amazon_get_merchant_listings_data  (
      id                            int             comment ''                              
     ,user_account                  string          comment ''                                 
     ,listing_id                    string          comment ''                               
@@ -69,4 +69,6 @@ CREATE TABLE if not exists  ods_amazon_get_merchant_listings_data  (
     ,ods_create_time               string          comment '导入数据时间'
 ) comment 'listing报表原始表'
 partitioned by (company_code string comment '公司代码')
-row format delimited fields terminated by '\t' stored as textfile;                                                               
+row format delimited fields terminated by '\t' stored as textfile;     
+
+create table if not exists ymx_tmp.ods_amazon_get_merchant_listings_data like ymx.ods_amazon_get_merchant_listings_data;
