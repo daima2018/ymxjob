@@ -40,6 +40,7 @@ echo $string_array
 hive -e "
 set hive.exec.dynamic.partition=true;            
 set hive.exec.dynamic.partition.mode=nonstrict; 
+set hive.auto.convert.join=false;
 set mapred.reduce.tasks=4;
 set hive.exec.parallel=true;
 
