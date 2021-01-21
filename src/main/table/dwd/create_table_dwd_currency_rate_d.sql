@@ -1,4 +1,4 @@
-CREATE TABLE if not exists dwd_currency_rate_d (
+CREATE TABLE if not exists ymx.dwd_currency_rate_d (
     `currency_date` string  COMMENT '汇率日期',
     `currency_local` string  COMMENT '本位币',
     `currency_code` string COMMENT '币种简称',

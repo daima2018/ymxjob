@@ -1,4 +1,4 @@
-CREATE TABLE if not exists dwt_listing_sum_local_d (
+CREATE TABLE if not exists ymx.dwt_listing_sum_local_d (
     `user_account` string  COMMENT '店铺账号',
     `site` string  COMMENT '站点',
     `seller_sku` string comment '',

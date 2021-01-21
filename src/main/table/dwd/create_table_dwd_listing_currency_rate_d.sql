@@ -1,4 +1,4 @@
-CREATE TABLE if not exists `dwd_listing_currency_rate_d` (
+CREATE TABLE if not exists `ymx.dwd_listing_currency_rate_d` (
      site           string comment '站点'      
     ,user_account   string comment '店铺账号'              
     ,parent_asin    string comment '父asin和独立asin'             
