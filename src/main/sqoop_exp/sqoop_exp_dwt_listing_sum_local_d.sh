@@ -15,6 +15,7 @@ getparam(){
 #解析脚本参数
 start_date=`getparam start_date`
 end_date=`getparam end_date`
+company_code=`getparam company_code`
 
 hive_dbname=ymx
 tmp_dbname=ymx_tmp
