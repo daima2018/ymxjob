@@ -17,6 +17,7 @@ company_code=`getparam company_code`
 
 hive -e "
 set hive.exec.parallel=true;
+set hive.strict.checks.cartesian.product=false;
 
 insert overwrite table ymx.dwd_listing_d partition(company_code='${company_code}')
 select
