@@ -176,7 +176,6 @@ left join (SELECT
                  generate_date as stat_date
                 ,user_account
                 ,child_asin
-                ,seller_sku
                 ,nvl(max(sessions),0) as sessions                 --取一条即可
                 ,nvl(max(page_views),0) as page_views
                 ,nvl(max(buy_box_percentage),0) as buy_box_percentage
@@ -187,13 +186,11 @@ left join (SELECT
                and generate_date<'${end_date}'
            group by user_account
                   ,child_asin
-                  ,seller_sku
                   ,generate_date
 ) h
 on  c.currency_date=h.stat_date
     and c.user_account = h.user_account
-    and c.asin = h.child_asin        
-    and c.seller_sku = h.seller_sku  
+    and c.asin = h.child_asin       
 "
 
 #如果执行失败就退出
