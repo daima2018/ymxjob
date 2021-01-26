@@ -32,9 +32,7 @@ db_connect=`eval echo  '$'"${company_code}_ad_db_connect"`
 db_username=`eval echo '$'"${company_code}_ad_db_username"`
 db_password=`eval echo '$'"${company_code}_ad_db_password"`
 
-echo "--connect:${db_connect}"
-echo "--db_username:${db_username}"
-echo "--db_password:${db_password}"
+
 
 
 sqoop import \

@@ -35,9 +35,7 @@ db_connect=jdbc:mysql://hdp101:3306/ymx
 db_username=root
 db_password=12345678
 
-echo "--connect:${db_connect}"
-echo "--db_username:${db_username}"
-echo "--db_password:${db_password}"
+
 
 columns=user_account,site,seller_sku,asin,qty,summary_date,sale_amount,sale_amount_usd,sale_amount_eur,sale_amount_gbp,sale_amount_jpy,sale_amount_original,created_time,updated_time,sale_order_num,refund_amount,refund_money,refund_money_usd,refund_money_eur,refund_money_gbp,refund_money_jpy,refund_money_local,key1,return_amount,asin_type,ad_qty,ad_sale_amount,ad_sale_amount_usd,ad_sale_amount_eur,ad_sale_amount_gbp,ad_sale_amount_jpy,ad_sale_order_num,ad_sale_amount_original,cost,cost_local,cost_usd,cost_eur,cost_gbp,cost_jpy,clicks,impressions,sessions,page_views,buy_box_percentage,session_percentage,page_views_percentage
 

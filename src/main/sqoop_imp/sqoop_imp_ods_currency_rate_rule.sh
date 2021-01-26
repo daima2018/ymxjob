@@ -32,9 +32,7 @@ db_connect=${center_db_connect}
 db_username=${center_db_username}
 db_password=${center_db_password}
 
-echo "--connect:${db_connect}"
-echo "--db_username:${db_username}"
-echo "--db_password:${db_password}"
+
 
 
 sqoop import \
