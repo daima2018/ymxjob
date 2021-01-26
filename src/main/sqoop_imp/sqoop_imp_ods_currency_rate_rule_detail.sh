@@ -6,16 +6,18 @@
 #############################################################
 
 source /home/ecm/ymx/conf/sqoop-job-conf.sh
+source /home/ecm/ymx/ymxjob/src/main/common/functions.sh
 
 #获取脚本参数
 opts=$@
-getparam(){
-    arg=$1
-    echo $opts |xargs -n1|cut -b 2- |awk -F '=' '{if($1=="'"$arg"'") print $2}'
-}
+
 #解析脚本参数
-start_date=`getparam start_date`
-end_date=`getparam end_date`
+start_date=`getparam start_date "$opts"`
+end_date=`getparam end_date "$opts"`
+company_code=`getparam company_code "$opts"`
+
+start_date=`getdate "$start_date"`
+end_date=`getdate "$end_date"`
 
 ods_dbname=ymx
 tmp_dbname=ymx_tmp

@@ -4,22 +4,18 @@
 #目标表 dwd_listing_currency_rate_d
 #############################################################
 
+source /home/ecm/ymx/ymxjob/src/main/common/functions.sh
+
 #获取脚本参数
 opts=$@
-getparam(){
-    arg=$1
-    echo $opts |xargs -n1|cut -b 2- |awk -F '=' '{if($1=="'"$arg"'") print $2}'
-}
 
-#解析脚本参数,传入格式为yyyy-MM-dd
-start_date=`getparam start_date`
-end_date=`getparam end_date`
-company_code=`getparam company_code`
+#解析脚本参数
+start_date=`getparam start_date "$opts"`
+end_date=`getparam end_date "$opts"`
+company_code=`getparam company_code "$opts"`
 
-#默认情况只跑一天的
-if [ "$end_date" = "" ]  
-then end_date=`date -d "${start_date} 1 days" "+%Y-%m-%d"`
-fi
+start_date=`getdate "$start_date"`
+end_date=`getdate "$end_date"`
 
 start_flag=$start_date
 string_array=''
@@ -29,7 +25,6 @@ do
     string_array=$string_array","$start_flag
     start_flag=`date -d "${start_flag} 1 days" "+%Y-%m-%d"`
 done
-echo $start_flag
 
 if [[ $string_array != "" ]]
 then string_array=${string_array:1} #去掉第一个, 

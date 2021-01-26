@@ -9,7 +9,7 @@ getparam(){
     echo $2 |xargs -n1|cut -b 2- |awk -F '=' '{if($1=="'"$arg"'") print $2}'
 }
 
-#时间特殊处理
+#时间特殊处理  普通格式为yyyy-MM-dd
 getdate(){
     arg=$1
     if [ "${arg:0:1}" = "T" ]    #如果是T开头,特殊处理

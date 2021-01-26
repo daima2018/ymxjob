@@ -4,16 +4,18 @@
 #目标表 dwd_listing_d
 #############################################################
 
+source /home/ecm/ymx/ymxjob/src/main/common/functions.sh
+
 #获取脚本参数
 opts=$@
-getparam(){
-    arg=$1
-    echo $opts |xargs -n1|cut -b 2- |awk -F '=' '{if($1=="'"$arg"'") print $2}'
-}
+
 #解析脚本参数
-start_date=`getparam start_date`
-end_date=`getparam end_date`
-company_code=`getparam company_code`
+start_date=`getparam start_date "$opts"`
+end_date=`getparam end_date "$opts"`
+company_code=`getparam company_code "$opts"`
+
+start_date=`getdate "$start_date"`
+end_date=`getdate "$end_date"`
 
 hive -e "
 set hive.exec.parallel=true;
