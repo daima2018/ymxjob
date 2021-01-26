@@ -1,0 +1,26 @@
+config:
+  retries: 3
+  retry.backoff: 10000
+  #项目文件路径
+  base.dir: /home/ecm/ymx/ymxjob/src/main
+nodes:
+  #获取中心库的数据
+  - name: sqoop_imp_ods_company
+    type: command
+    config:
+      command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_company.sh 
+  - name: sqoop_imp_ods_currency_rate_rule
+    type: command
+    config:
+      command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_currency_rate_rule.sh 
+  - name: sqoop_imp_ods_currency_rate_rule_detail
+    type: command
+    config:
+      command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_currency_rate_rule_detail.sh -start_date=${start_date} -end_date=${end_date} 
+  - name: hive_dwd_currency_rate_d
+    type: command
+    dependsOn:
+      - sqoop_imp_ods_currency_rate_rule
+      - sqoop_imp_ods_currency_rate_rule_detail
+    config:
+      command: sh ${base.dir}/hive/dwd/hive_dwd_currency_rate_d.sh 
