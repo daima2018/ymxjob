@@ -16,8 +16,8 @@ nodes:
     dependsOn:
       - get_properties
     config:
-      start_date: ${start_date}
-      end_date: ${end_date}      
+      start_date: ${startdate}
+      end_date: ${enddate}      
     nodes:
       #获取客户库的数据
       - name: sqoop_get_data

@@ -1,2 +1,2 @@
 #!/bin/bash
-echo '{"start_date":"T-1" , "end_date":"T" }' >> ${JOB_OUTPUT_PROP_FILE}
+echo '{"startdate":"T-1" , "enddate":"T" }' >> ${JOB_OUTPUT_PROP_FILE}
