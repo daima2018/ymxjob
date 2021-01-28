@@ -103,10 +103,10 @@ nodes:
             dependsOn:
               - hive_dwd_listing_currency_rate_d
             config:
-              command: sh ${base.dir}/hive/dwd/hive_dwm_child_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+              command: sh ${base.dir}/hive/dwm/hive_dwm_child_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
           - name: hive_dwt_listing_sum_local_d
             type: command
             dependsOn:
               - hive_dwm_child_listing_sum_local_d
             config:
-              command: sh ${base.dir}/hive/dwd/hive_dwt_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+              command: sh ${base.dir}/hive/dwt/hive_dwt_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
