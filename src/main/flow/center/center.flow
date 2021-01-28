@@ -3,6 +3,8 @@ config:
   retry.backoff: 10000
   #项目文件路径
   base.dir: /home/ecm/ymx/ymxjob/src/main
+  start_date: ${startdate}
+  end_date: ${enddate}      
 nodes:
   #获取中心库的数据
   - name: sqoop_imp_ods_company
