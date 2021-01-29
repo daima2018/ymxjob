@@ -31,6 +31,21 @@ db_connect=`eval echo  '$'"${company_code}_db_connect"`
 db_username=`eval echo '$'"${company_code}_db_username"`
 db_password=`eval echo '$'"${company_code}_db_password"`
 
+#删除临时目录
+DISK_SPACE=$(hadoop fs -du -h -s ${target_dir} | awk -F ' ' '{print int($1)}')
+if [ $DISK_SPACE -gt 0 ];then
+    echo "删除临时目录"
+    hadoop fs -rmr ${target_dir}
+else
+    echo '未获取到数据！！！'
+fi
+
+#如果执行失败就退出
+if [ $? -ne 0 ];then
+     echo "[ERROR] execute failed!"
+     exit $?
+fi
+
 columns=user_account,site,seller_sku,asin,qty,summary_date,sale_amount,sale_amount_usd,sale_amount_eur,sale_amount_gbp,sale_amount_jpy,sale_amount_original,created_time,updated_time,sale_order_num,refund_amount,refund_money,refund_money_usd,refund_money_eur,refund_money_gbp,refund_money_jpy,refund_money_local,key1,return_amount,asin_type,ad_qty,ad_sale_amount,ad_sale_amount_usd,ad_sale_amount_eur,ad_sale_amount_gbp,ad_sale_amount_jpy,ad_sale_order_num,ad_sale_amount_original,cost,cost_local,cost_usd,cost_eur,cost_gbp,cost_jpy,clicks,impressions,sessions,page_views,buy_box_percentage,session_percentage,page_views_percentage
 
 hive -e "
@@ -90,6 +105,19 @@ where company_code='${company_code}'
 #如果执行失败就退出
 if [ $? -ne 0 ];then
      echo "[ERROR] hive execute failed!"
+     exit $?
+fi
+
+echo "--导出之前先删除--"
+sqoop eval                       \
+--connect ${db_connect} \
+--username ${db_username}  \
+--password ${db_password} \
+--query "delete from ec_amazon_listing_extend_statistics_local Where summary_date>='${start_date}' and summary_date<'${end_date}'"
+
+#如果执行失败就退出
+if [ $? -ne 0 ];then
+     echo "[ERROR] sqoop eval execute failed!"
      exit $?
 fi
 
