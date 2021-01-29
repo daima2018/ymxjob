@@ -31,7 +31,7 @@ set mapreduce.input.fileinputformat.split.maxsize=128000000;
 insert overwrite table ymx.dwm_child_listing_sum_local_d partition(company_code='${company_code}',stat_date)
 select                                                                       
      c.user_account                                           -- '店铺账号'                
-    ,c.site                                                   --  '站点'                      
+    ,nvl(c.site,'')                                           --  '站点'                      
     ,c.seller_sku                                             --
     ,c.parent_asin            --在结果集可以去掉该字段
     ,c.asin                                                   --                     

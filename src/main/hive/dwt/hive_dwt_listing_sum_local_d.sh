@@ -80,7 +80,6 @@ left join (select * from ymx.dwm_child_listing_sum_local_d
 ) d
 on  c.currency_date=d.stat_date
     and c.user_account = d.user_account
-    and c.site = d.site
     and c.asin = d.asin
     and c.seller_sku = d.seller_sku
 left join (SELECT
