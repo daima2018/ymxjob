@@ -27,44 +27,44 @@ insert overwrite table ymx.dwt_listing_sum_local_d partition(company_code='${com
 select
       c.user_account                   -- '店铺账号'
      ,c.site                           --  '站点'
-     ,null as seller_sku             --
+     ,'' as seller_sku             --
      ,c.parent_asin as asin            --
-     ,sum(d.qty)                  as qty    -- '销售数量',
-     ,sum(d.sale_amount)          as sale_amount      -- '销售额(本位币)',
-     ,sum(d.sale_amount_usd)      as sale_amount_usd      -- '销售额美元',
-     ,sum(d.sale_amount_eur)      as sale_amount_eur      -- '销售额欧元',
-     ,sum(d.sale_amount_gbp)      as sale_amount_gbp      -- '销售额英镑',
-     ,sum(d.sale_amount_jpy)      as sale_amount_jpy      -- '销售额日元',
-     ,sum(d.sale_amount_original) as sale_amount_original      -- '销售额（站点原始金额）',
+     ,nvl(sum(d.qty)                 ,0) as qty    -- '销售数量',
+     ,nvl(sum(d.sale_amount)         ,0) as sale_amount      -- '销售额(本位币)',
+     ,nvl(sum(d.sale_amount_usd)     ,0) as sale_amount_usd      -- '销售额美元',
+     ,nvl(sum(d.sale_amount_eur)     ,0) as sale_amount_eur      -- '销售额欧元',
+     ,nvl(sum(d.sale_amount_gbp)     ,0) as sale_amount_gbp      -- '销售额英镑',
+     ,nvl(sum(d.sale_amount_jpy)     ,0) as sale_amount_jpy      -- '销售额日元',
+     ,nvl(sum(d.sale_amount_original),0) as sale_amount_original      -- '销售额（站点原始金额）',
      ,date_format(current_timestamp(),'yyyy-MM-dd HH:mm:ss') as created_time         -- '创建时间',
      ,date_format(current_timestamp(),'yyyy-MM-dd HH:mm:ss') as updated_time         -- '更新时间',
-     ,sum(d.sale_order_num  )     as sale_order_num       -- '订单数',
-     ,sum(d.refund_amount   )     as refund_amount       -- '退款listing个数',
-     ,sum(d.refund_money    )     as refund_money       -- '退款金额(站点币种)',
-     ,sum(d.refund_money_usd)     as refund_money_usd       -- '退款金额美元',
-     ,sum(d.refund_money_eur)     as refund_money_eur       -- '退款金额欧元',
-     ,sum(d.refund_money_gbp)     as refund_money_gbp       -- '退款金额英镑',
-     ,sum(d.refund_money_jpy)     as refund_money_jpy       -- '退款金额日元',
-     ,sum(d.refund_money_local)   as refund_money_local       -- '退款金额(本位币)',
+     ,nvl(sum(d.sale_order_num  )  ,0)   as sale_order_num       -- '订单数',
+     ,nvl(sum(d.refund_amount   )  ,0)   as refund_amount       -- '退款listing个数',
+     ,nvl(sum(d.refund_money    )  ,0)   as refund_money       -- '退款金额(站点币种)',
+     ,nvl(sum(d.refund_money_usd)  ,0)   as refund_money_usd       -- '退款金额美元',
+     ,nvl(sum(d.refund_money_eur)  ,0)   as refund_money_eur       -- '退款金额欧元',
+     ,nvl(sum(d.refund_money_gbp)  ,0)   as refund_money_gbp       -- '退款金额英镑',
+     ,nvl(sum(d.refund_money_jpy)  ,0)   as refund_money_jpy       -- '退款金额日元',
+     ,nvl(sum(d.refund_money_local),0)   as refund_money_local       -- '退款金额(本位币)',
      ,md5(concat(c.user_account,c.parent_asin)) as key1   --父asin没有seller_sku     -- 'user_account+asin+seller_sku 的MD5值',
-     ,sum(d.return_amount)                                  -- '退货数',
+     ,nvl(sum(d.return_amount),0)                                  -- '退货数',
      ,3 as asin_type                                      -- '0未确定, 子asin:1，独立产品:2, 父asin3',
-     ,sum(d.ad_qty)                  -- '广告销售数量',
-     ,sum(d.ad_sale_amount)          -- '广告销售额(本位币)',
-     ,sum(d.ad_sale_amount_usd     ) -- '广告销售额美元',
-     ,sum(d.ad_sale_amount_eur     ) -- '广告销售额欧元',
-     ,sum(d.ad_sale_amount_gbp     ) -- '广告销售额英镑',
-     ,sum(d.ad_sale_amount_jpy     ) -- '广告销售额日元',
-     ,sum(d.ad_sale_order_num      ) -- '广告订单数',
-     ,sum(d.ad_sale_amount_original) -- '广告销售额（站点原始金额）',
-     ,sum(d.cost                   ) -- '广告花费(站点币种)',
-     ,sum(d.cost_local   )           -- '广告花费(本位币)',
-     ,sum(d.cost_usd     )     
-     ,sum(d.cost_eur     )     
-     ,sum(d.cost_gbp     )     
-     ,sum(d.cost_jpy     )     
-     ,sum(d.clicks       )                              -- '广告访问次数,也即广告点击数'
-     ,sum(d.impressions  )                              -- 广告曝光量
+     ,nvl(sum(d.ad_qty)                 ,0) -- '广告销售数量',
+     ,nvl(sum(d.ad_sale_amount)         ,0) -- '广告销售额(本位币)',
+     ,nvl(sum(d.ad_sale_amount_usd     ),0) -- '广告销售额美元',
+     ,nvl(sum(d.ad_sale_amount_eur     ),0) -- '广告销售额欧元',
+     ,nvl(sum(d.ad_sale_amount_gbp     ),0) -- '广告销售额英镑',
+     ,nvl(sum(d.ad_sale_amount_jpy     ),0) -- '广告销售额日元',
+     ,nvl(sum(d.ad_sale_order_num      ),0) -- '广告订单数',
+     ,nvl(sum(d.ad_sale_amount_original),0) -- '广告销售额（站点原始金额）',
+     ,nvl(sum(d.cost                   ),0) -- '广告花费(站点币种)',
+     ,nvl(sum(d.cost_local   ),0)           -- '广告花费(本位币)',
+     ,nvl(sum(d.cost_usd     ),0)     
+     ,nvl(sum(d.cost_eur     ),0)     
+     ,nvl(sum(d.cost_gbp     ),0)     
+     ,nvl(sum(d.cost_jpy     ),0)     
+     ,nvl(sum(d.clicks       ),0)                              -- '广告访问次数,也即广告点击数'
+     ,nvl(sum(d.impressions  ),0)                              -- 广告曝光量
      ,nvl(max(h.sessions)             ,0) as sessions                 -- 访客次数
      ,nvl(max(h.page_views)           ,0) as page_views               --浏览次数
      ,nvl(max(h.buy_box_percentage)   ,0) as buy_box_percentage       --  buy_box_percentage
