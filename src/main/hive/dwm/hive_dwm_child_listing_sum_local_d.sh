@@ -35,7 +35,7 @@ select
     ,c.seller_sku                                             --
     ,c.parent_asin            --在结果集可以去掉该字段
     ,c.asin                                                   --                     
-    ,d.sale_amount as qty                                     -- '销售数量',                 
+    ,nvl(d.sale_amount,0) as qty                                     -- '销售数量',                 
     ,nvl(case when local_rate=1 then floor(100*d.sale_money_original)/100
               else floor(100*d.sale_money_original/c.local_rate)/100
          end,0) as sale_amount                                                      -- '销售额(本位币)',          
@@ -46,8 +46,8 @@ select
     ,nvl(d.sale_money_original,0) as sale_amount_original                           -- '销售额（站点原始金额）',   
     ,date_format(current_timestamp(),'yyyy-MM-dd HH:mm:ss') as created_time         -- '创建时间',            
     ,date_format(current_timestamp(),'yyyy-MM-dd HH:mm:ss') as updated_time         -- '更新时间',            
-    ,d.sale_order_num                                                               -- '订单数',              
-    ,f.refund_amount                                                                -- '退款listing个数',       
+    ,nvl(d.sale_order_num,0)                                                        -- '订单数',              
+    ,nvl(f.refund_amount ,0)                                                        -- '退款listing个数',       
     ,nvl(floor(100*f.refund_money)/100           ,0)                                -- '退款金额(站点币种)',      
     ,nvl(floor(100*f.refund_money/c.usd_rate)/100,0) as refund_money_usd            -- '退款金额美元',          
     ,nvl(floor(100*f.refund_money/c.eur_rate)/100,0) as refund_money_eur            -- '退款金额欧元',          
@@ -57,9 +57,9 @@ select
               else floor(100*f.refund_money/c.local_rate)/100
          end,0) as refund_money_local                                              -- '退款金额(本位币)',                            
     ,md5(concat(c.user_account,c.asin,c.seller_sku)) as key1                       -- 'user_account+asin+seller_sku 的MD5值',           
-    ,g.return_amount                                                               -- '退货数',                                    
+    ,nvl(g.return_amount,0)                                                               -- '退货数',                                    
     ,c.asin_type                                                                   -- '0未确定, 子asin:1，独立产品:2, 父asin3',       
-    ,e.ad_sale_amount as ad_qty                                                    -- '广告销售数量',                             
+    ,nvl(e.ad_sale_amount,0) as ad_qty                                                    -- '广告销售数量',                             
     ,nvl(case when local_rate=1 then floor(100*e.ad_sale_money_original)/100
               else floor(100*e.ad_sale_money_original/c.local_rate)/100
          end,0) as ad_sale_amount                                                         -- '广告销售额(本位币)',               
