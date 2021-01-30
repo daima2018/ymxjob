@@ -133,7 +133,7 @@ if [ $DISK_SPACE -gt 0 ];then
     --num-mappers 1                          \
     --export-dir ${target_dir}   \
     --columns ${columns}     \
-    --input-fields-terminated-by '\t'          \
+    --input-fields-terminated-by '\001'          \
     --input-lines-terminated-by   '\n'     \
     --input-null-string '\\N'                    \
     --input-null-non-string '\\N'               
