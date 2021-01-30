@@ -37,7 +37,7 @@ CREATE TABLE if not exists ymx.dwt_listing_sum_local_d (
     `cost_eur` decimal(14,4) comment '',
     `cost_gbp` decimal(14,4) comment '',
     `cost_jpy` decimal(14,4) comment '',
-    `clicks` int  COMMENT '广告访问次数,也即广告点击数',s
+    `clicks` int  COMMENT '广告访问次数,也即广告点击数',
     `impressions` int  COMMENT '广告曝光量',
     `sessions` int  COMMENT '访客次数',
     `page_views` int  COMMENT '浏览次数',
