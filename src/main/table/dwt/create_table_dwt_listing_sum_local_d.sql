@@ -37,7 +37,7 @@ CREATE TABLE if not exists ymx.dwt_listing_sum_local_d (
     `cost_eur` decimal(14,4) comment '',
     `cost_gbp` decimal(14,4) comment '',
     `cost_jpy` decimal(14,4) comment '',
-    `clicks` int  COMMENT '广告访问次数,也即广告点击数',
+    `clicks` int  COMMENT '广告访问次数,也即广告点击数',s
     `impressions` int  COMMENT '广告曝光量',
     `sessions` int  COMMENT '访客次数',
     `page_views` int  COMMENT '浏览次数',
@@ -46,4 +46,4 @@ CREATE TABLE if not exists ymx.dwt_listing_sum_local_d (
     `page_views_percentage` decimal(10,2)  COMMENT '浏览次数比率'
 ) comment 'listing统计表(本地时间)'
 partitioned by (company_code string comment '公司代码',stat_date string comment '统计日期')
-row format delimited fields terminated by '\t' LINES TERMINATED BY '\n' stored as orc;
+row format delimited fields terminated by '\001' LINES TERMINATED BY '\n' stored as orc;
