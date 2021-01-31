@@ -100,6 +100,7 @@ select
 from ymx.dwt_listing_sum_local_d 
 where company_code='${company_code}' 
     and stat_date>='${start_date}' and stat_date<'${end_date}'
+    and length(asin)<21
 "
 
 #如果执行失败就退出

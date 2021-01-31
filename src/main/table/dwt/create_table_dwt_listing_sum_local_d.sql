@@ -46,4 +46,4 @@ CREATE TABLE if not exists ymx.dwt_listing_sum_local_d (
     `page_views_percentage` decimal(10,2)  COMMENT '浏览次数比率'
 ) comment 'listing统计表(本地时间)'
 partitioned by (company_code string comment '公司代码',stat_date string comment '统计日期')
-row format delimited fields terminated by '\t' LINES TERMINATED BY '\n' stored as textfile;
+row format delimited fields terminated by '\t' LINES TERMINATED BY '\n' stored as orc;
