@@ -110,3 +110,13 @@ nodes:
               - hive_dwm_child_listing_sum_local_d
             config:
               command: sh ${base.dir}/hive/dwt/hive_dwt_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+
+      - name: sqoop_push_data
+        type: flow
+        dependsOn:
+          - hive_compute
+        nodes:
+          - name: sqoop_exp_dwt_listing_sum_local_d
+            type: command
+            config:
+              command: sh ${base.dir}/sqoop_exp/sqoop_exp_dwt_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date}     

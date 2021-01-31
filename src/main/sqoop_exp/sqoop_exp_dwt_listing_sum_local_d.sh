@@ -131,7 +131,7 @@ if [ $DISK_SPACE -gt 0 ];then
     --username ${db_username} \
     --password ${db_password} \
     --table ec_amazon_listing_extend_statistics_local     \
-    --num-mappers 10                          \
+    --num-mappers 4                          \
     --export-dir ${target_dir}   \
     --columns ${columns}     \
     --input-fields-terminated-by '\001'          \
