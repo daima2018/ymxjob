@@ -15,7 +15,7 @@ CREATE TABLE if not exists `ymx.ods_product_ad_products_report_daily` (
     ,impressions               int             comment '曝光度'            
     ,clicks                    int             comment '点击数'       
     ,cost                      decimal(10,4)   comment '所有点击的总费用'               
-    ,generated_date            date            comment '报告生成生成日期'                
+    ,generated_date            string          comment '报告生成生成日期'                
     ,conversions1d             int             comment '点击广告1天内发生的归因转化事件数'              
     ,conversions1d_same_sku    int             comment '点击广告后1天内发生的归因转化事件的数量，其中已购买的SKU与广告中的SKU相同'                       
     ,units_ordered1d           int             comment '点击广告后1天内订购的归属订单数量'                
