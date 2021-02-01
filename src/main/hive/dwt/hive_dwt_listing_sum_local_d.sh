@@ -26,7 +26,7 @@ set hive.exec.parallel=true;
 insert overwrite table ymx.dwt_listing_sum_local_d partition(company_code='${company_code}',stat_date)
 select
       user_account                   -- '店铺账号'
-     ,site                           --  '站点'
+     ,nvl(site,'')                           --  '站点'
      ,'' as seller_sku             --
      ,parent_asin as asin            --
      ,nvl(sum(qty)                 ,0) as qty    -- '销售数量',
