@@ -21,8 +21,6 @@ for i in $companys
 do
     echo "------公司:$i,脚本:${script_name}"
     sh /home/ecm/ymx/ymxjob/src/main/${script_name} -company_code=$i 
-    echo "------------------------------------睡眠一会儿"
-    sleep 60   #睡眠60秒钟
 done
 
 echo "循环结束时间:"`date "+%Y-%m-%d %H:%M:%S"`
