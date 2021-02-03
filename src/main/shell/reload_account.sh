@@ -15,7 +15,7 @@ target_name=/home/ecm/ymx/conf/sqoop-job-conf.sh
 
 #清空文件内容
 echo "" > $tmp_name
-echo "\#\!/bin/bash" >> $tmp_name
+echo '#!/bin/bash' >> $tmp_name
 echo "HDFS_BASE_DIR=/user/hive/warehouse/" >> $tmp_name
 
 for line in `cat $src_name`
