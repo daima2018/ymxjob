@@ -4,6 +4,7 @@
 #名称   listing统计表(本地时间)
 #############################################################
 
+source /home/ecm/ymx/conf/common-conf.sh
 source /home/ecm/ymx/conf/sqoop-job-conf.sh
 source /home/ecm/ymx/ymxjob/src/main/common/functions.sh
 

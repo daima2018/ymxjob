@@ -5,6 +5,7 @@
 #目标表 ods_currency_rate_rule_detail
 #############################################################
 
+source /home/ecm/ymx/conf/common-conf.sh
 source /home/ecm/ymx/conf/sqoop-job-conf.sh
 source /home/ecm/ymx/ymxjob/src/main/common/functions.sh
 

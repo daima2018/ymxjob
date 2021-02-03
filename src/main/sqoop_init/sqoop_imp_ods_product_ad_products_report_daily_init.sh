@@ -5,6 +5,7 @@
 #目标表 ods_product_ad_products_report_daily
 #############################################################
 
+source /home/ecm/ymx/conf/common-conf.sh
 source /home/ecm/ymx/conf/sqoop-job-conf.sh
 source /home/ecm/ymx/ymxjob/src/main/common/functions.sh
 
