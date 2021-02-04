@@ -31,7 +31,7 @@ do
     cp ${base_dir}/${company_sample}/A20090247_properties.sh ./${i}_properties.sh    
     cp ${base_dir}/${company_sample}/A20090247.flow ./${i}.flow
     #修改文件里面的配置
-    sed "s/${i}/A20090247/g" ${i}.flow
+    sed -i "s/A20090247/${i}/g" ${i}.flow
     #打包
     zip ${i}.zip ${i}.flow az.project
 done
