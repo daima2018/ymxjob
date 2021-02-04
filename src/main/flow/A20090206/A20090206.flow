@@ -1,0 +1,122 @@
+config:
+  #失败的job的自动重试的次数
+  retries: 3
+  #重试的间隔（毫秒）
+  retry.backoff: 10000
+  #项目文件路径
+  base.dir: /home/ecm/ymx/ymxjob/src/main
+  company_code: A20090206
+nodes:
+  - name: get_properties
+    type: command
+    config:
+      command: sh ${base.dir}/flow/${company_code}/${company_code}_properties.sh 
+  - name: compute
+    type: flow
+    dependsOn:
+      - get_properties
+    config:
+      start_date: ${startdate}
+      end_date: ${enddate}      
+    nodes:
+      #获取客户库的数据
+      - name: sqoop_get_data
+        type: flow
+        #一个公司的所有同步数据任务串行执行
+        nodes:
+          - name: sqoop_imp_ods_amazon_business_report_by_child
+            type: command
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_amazon_business_report_by_child.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date}
+          - name: sqoop_imp_ods_amazon_business_report_by_parent
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_amazon_business_report_by_child
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_amazon_business_report_by_parent.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: sqoop_imp_ods_amazon_fba_fulfillment_customer_returns_data
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_amazon_business_report_by_parent
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_amazon_fba_fulfillment_customer_returns_data.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: sqoop_imp_ods_amazon_get_merchant_listings_data
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_amazon_fba_fulfillment_customer_returns_data
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_amazon_get_merchant_listings_data.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: sqoop_imp_ods_amazon_order_detail
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_amazon_get_merchant_listings_data
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_amazon_order_detail.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: sqoop_imp_ods_amazon_order_original
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_amazon_order_detail
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_amazon_order_original.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: sqoop_imp_ods_amazon_parent_listing
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_amazon_order_original
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_amazon_parent_listing.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: sqoop_imp_ods_amazon_v2_settlement_detail
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_amazon_parent_listing
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_amazon_v2_settlement_detail.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: sqoop_imp_ods_platform_user
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_amazon_v2_settlement_detail
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_platform_user.sh -company_code=${company_code} 
+          - name: sqoop_imp_ods_product_ad_products_report_daily
+            type: command
+            dependsOn:
+              - sqoop_imp_ods_platform_user
+            config:
+              command: sh ${base.dir}/sqoop_imp/sqoop_imp_ods_product_ad_products_report_daily.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+    
+      - name: hive_compute
+        type: flow
+        dependsOn:
+          - sqoop_get_data
+        nodes:
+          - name: hive_dwd_listing_d
+            type: command
+            config:
+              command: sh ${base.dir}/hive/dwd/hive_dwd_listing_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: hive_dwd_listing_currency_rate_d
+            type: command
+            dependsOn:
+              - hive_dwd_listing_d
+            config:
+              command: sh ${base.dir}/hive/dwd/hive_dwd_listing_currency_rate_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: hive_dwm_child_listing_sum_local_d
+            type: command
+            dependsOn:
+              - hive_dwd_listing_currency_rate_d
+            config:
+              command: sh ${base.dir}/hive/dwm/hive_dwm_child_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+          - name: hive_dwt_listing_sum_local_d
+            type: command
+            dependsOn:
+              - hive_dwm_child_listing_sum_local_d
+            config:
+              command: sh ${base.dir}/hive/dwt/hive_dwt_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date} 
+
+      - name: sqoop_push_data
+        type: flow
+        dependsOn:
+          - hive_compute
+        nodes:
+          - name: sqoop_exp_dwt_listing_sum_local_d
+            type: command
+            config:
+              command: sh ${base.dir}/sqoop_exp/sqoop_exp_dwt_listing_sum_local_d.sh -company_code=${company_code} -start_date=${start_date} -end_date=${end_date}     
