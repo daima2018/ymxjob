@@ -22,12 +22,15 @@ do
     a=`echo $line|awk -F "#=#" '{print $1}'`
     b=`echo $line|awk -F "#=#" '{print $2}'`
     if [ "${a:0-8:8}" = "password" ] 
-        then 
-            echo $a="\""`getpassword $b|sed 's/\$/\\\\\$/g'`"\"" >> $tmp_name
-            echo "" >> $tmp_name
+    then b="\""`getpassword $b`"\""
+        echo $a=$b >> $tmp_name
+        echo "" >> $tmp_name
     else echo $a=$b >> $tmp_name   
     fi    
 done
+
+#特殊字符转义
+sed -i 's/\$/\\$/g' $tmp_name
 
 #内容覆盖
 cp $tmp_name $target_name
