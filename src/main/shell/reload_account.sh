@@ -22,9 +22,9 @@ do
     a=`echo $line|awk -F "#=#" '{print $1}'`
     b=`echo $line|awk -F "#=#" '{print $2}'`
     if [ "${a:0-8:8}" = "password" ] 
-    then b="\""`getpassword $b`"\""
-        echo $a=$b >> $tmp_name
-        echo "" >> $tmp_name
+        then 
+            echo $a="\""`getpassword $b|sed 's/\$/\\\$/g'`"\"" >> $tmp_name
+            echo "" >> $tmp_name
     else echo $a=$b >> $tmp_name   
     fi    
 done
