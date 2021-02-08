@@ -46,7 +46,8 @@ from (select
         on t1.user_account = t2.user_account
     left join (select currency_local from ymx.ods_company where company_code = '${company_code}') t3
 ) tt1 join ymx.ods_amazon_get_merchant_listings_data tt2
-        on  tt2.parent_asin != tt2.asin1
+        on  tt2.company_code='${company_code}'
+            and tt2.parent_asin != tt2.asin1
             and tt2.item_status='on_sale'
             and tt1.user_account=tt2.user_account
             and tt1.asin=tt2.parent_asin

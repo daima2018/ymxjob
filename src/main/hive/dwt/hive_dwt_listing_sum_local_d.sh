@@ -160,7 +160,8 @@ from (
         ,nvl(max(session_percentage),0) as session_percentage
         ,nvl(max(page_views_percentage),0) as page_views_percentage
     from ymx.ods_amazon_business_report_by_parent
-    WHERE generate_date>='${start_date}' and generate_date<'${end_date}'
+    WHERE company_code='${company_code}'
+        and generate_date>='${start_date}' and generate_date<'${end_date}'
     group by generate_date
          ,user_account
          ,site

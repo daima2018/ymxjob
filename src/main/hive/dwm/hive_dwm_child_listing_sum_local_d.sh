@@ -135,7 +135,9 @@ inner join (
                ,0 as page_views_percentage
           FROM  ymx.ods_amazon_order_original aoo
                     JOIN ymx.ods_amazon_order_detail aod
-                         ON aoo.aoo_id = aod.aoo_id
+                         ON aoo.company_code='${company_code}'
+                              and aod.company_code='${company_code}'                
+                              and aoo.aoo_id = aod.aoo_id
           where date_format(aoo.purchase_date_local,'yyyy-MM-dd') >= '${start_date}'
             and date_format(aoo.purchase_date_local,'yyyy-MM-dd') < '${end_date}'
             and aoo.order_status != 'Canceled'
@@ -167,7 +169,8 @@ inner join (
                ,0 as session_percentage
                ,0 as page_views_percentage
           FROM ymx.ods_product_ad_products_report_daily
-          WHERE generated_date>='${start_date}'
+          WHERE company_code='${company_code}'
+               and generated_date>='${start_date}'
               and generated_date<'${end_date}'
           group by user_account
                  ,asin
@@ -197,8 +200,9 @@ inner join (
                ,0 as session_percentage
                ,0 as page_views_percentage
           FROM ymx.ods_amazon_fba_fulfillment_customer_returns_data
-          WHERE  return_date>=to_utc_timestamp('${start_all}','GMT+8')  
-            AND return_date< to_utc_timestamp('${end_all}','GMT+8')
+          WHERE  company_code='${company_code}'
+               and return_date>=to_utc_timestamp('${start_all}','GMT+8')  
+               AND return_date< to_utc_timestamp('${end_all}','GMT+8')
           group by user_account
                  ,asin
                  ,sku   
@@ -233,7 +237,8 @@ inner join (
                     ,nvl(SUM(quantity_purchased),0) AS refund_amount
                     ,nvl(SUM(amount),0) AS refund_money
                from ymx.ods_amazon_v2_settlement_detail
-               WHERE transaction_type='Refund'
+               WHERE company_code='${company_code}'
+                    and transaction_type='Refund'
                  AND posted_date_time>=to_utc_timestamp('${start_all}','GMT+8')
                  AND posted_date_time< to_utc_timestamp('${end_all}','GMT+8')
                group by user_account
@@ -277,7 +282,8 @@ inner join (
                     ,nvl(max(session_percentage),0) as session_percentage
                     ,nvl(max(page_views_percentage),0) as page_views_percentage
                from ymx.ods_amazon_business_report_by_child
-               WHERE generate_date>='${start_date}'
+               WHERE company_code='${company_code}'
+                    and generate_date>='${start_date}'
                    and generate_date<'${end_date}'
                group by user_account
                       ,child_asin
