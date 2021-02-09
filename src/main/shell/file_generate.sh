@@ -12,7 +12,7 @@ opts=$@
 start_date=`getparam start_date "$opts"`
 end_date=`getparam end_date "$opts"`
 
-base_dir=/home/ecm/workspace/ymxjob/src/main/flow/
+base_dir=/home/ecm/ymx/workspace/ymxjob/src/main/flow/
 #样例
 company_sample=A20090247
 
