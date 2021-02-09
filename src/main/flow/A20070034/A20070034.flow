@@ -21,8 +21,6 @@ nodes:
     nodes:
       - name: hive_compute
         type: flow
-        dependsOn:
-          - sqoop_get_data
         nodes:
           - name: hive_dwd_listing_d
             type: command
