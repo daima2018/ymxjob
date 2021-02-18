@@ -3,7 +3,7 @@
 #名称   生成flow和配置文件
 #############################################################
 
-source /home/ecm/ymx/ymxjob/src/main/common/functions.sh
+source /d/projects/ymxjob/src/main/common/functions.sh
 
 #获取脚本参数
 opts=$@
@@ -12,7 +12,7 @@ opts=$@
 start_date=`getparam start_date "$opts"`
 end_date=`getparam end_date "$opts"`
 
-base_dir=/home/ecm/ymx/workspace/ymxjob/src/main/flow/
+base_dir=/d/projects/ymxjob/src/main/flow/
 #样例
 company_sample=A20090247
 
