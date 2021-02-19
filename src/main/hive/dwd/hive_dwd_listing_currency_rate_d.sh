@@ -38,7 +38,6 @@ set hive.exec.dynamic.partition.mode=nonstrict;
 set hive.auto.convert.join=false;
 set mapred.reduce.tasks=4;
 set hive.exec.parallel=true;
-set hive.execution.engine=spark;
 
 insert overwrite table ymx.dwd_listing_currency_rate_d partition(company_code='${company_code}',currency_date)
 select

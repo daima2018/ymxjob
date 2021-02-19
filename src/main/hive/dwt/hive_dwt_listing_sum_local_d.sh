@@ -22,7 +22,6 @@ hive -e "
 set hive.exec.dynamic.partition=true;           
 set hive.exec.dynamic.partition.mode=nonstrict; 
 set hive.exec.parallel=true;
-set hive.execution.engine=spark;
 
 insert overwrite table ymx.dwt_listing_sum_local_d partition(company_code='${company_code}',stat_date)
 select

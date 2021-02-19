@@ -27,7 +27,6 @@ set hive.exec.dynamic.partition.mode=nonstrict;
 set mapred.reduce.tasks=4;
 set hive.exec.parallel=true;
 set mapreduce.input.fileinputformat.split.maxsize=128000000;
-set hive.execution.engine=spark;
 
 insert overwrite table ymx.dwm_child_listing_sum_local_d partition(company_code='${company_code}',stat_date)
 select                                                                       
