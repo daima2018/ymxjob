@@ -17,6 +17,8 @@ start_date=`getdate "$start_date"`
 end_date=`getdate "$end_date"`
 
 hive -e "
+set hive.execution.engine=spark;
+
 insert overwrite table ymx.dwd_currency_rate_d
 select
      a.crr_date            as currency_date     

@@ -20,6 +20,7 @@ end_date=`getdate "$end_date"`
 hive -e "
 set hive.exec.parallel=true;
 set hive.strict.checks.cartesian.product=false;
+set hive.execution.engine=spark;
 
 insert overwrite table ymx.dwd_listing_d partition(company_code='${company_code}')
 select
